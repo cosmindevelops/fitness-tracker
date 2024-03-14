@@ -1,8 +1,7 @@
-﻿namespace GymTracker.Core.Entities
+﻿namespace GymTracker.Core.Entities;
+
+public class Role
 {
-    public class Role
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
 }
