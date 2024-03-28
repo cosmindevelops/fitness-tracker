@@ -2,20 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace GymTracker.Infrastructure.Data.Config
-{
-    public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
-    {
-        public void Configure(EntityTypeBuilder<Workout> builder)
-        {
-            builder.HasKey(w => w.Id);
-            builder.Property(w => w.Notes).HasColumnType("nvarchar(max)");
-            builder.Property(w => w.Date).IsRequired();
+namespace GymTracker.Infrastructure.Data.Config;
 
-            // Configurarea relației one-to-many cu User
-            builder.HasOne(w => w.User)
-                   .WithMany(u => u.Workouts)
-                   .HasForeignKey(w => w.UserId);
-        }
+public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
+{
+    public void Configure(EntityTypeBuilder<Workout> builder)
+    {
+        builder.HasKey(w => w.Id);
+        builder.Property(w => w.Notes).HasColumnType("nvarchar(max)");
+        builder.Property(w => w.Date).IsRequired();
+
+        builder.HasOne(w => w.User)
+               .WithMany(u => u.Workouts)
+               .HasForeignKey(w => w.UserId);
     }
 }

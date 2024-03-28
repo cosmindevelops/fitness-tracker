@@ -9,7 +9,6 @@ public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
 
-
     public AuthController(AuthService authService)
     {
         _authService = authService;
@@ -18,6 +17,10 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterModelDto model)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var (Success, UserId, Token) = await _authService.RegisterAsync(model);
         if (!Success)
         {
@@ -26,7 +29,6 @@ public class AuthController : ControllerBase
 
         return Ok(new { UserId, Token });
     }
-
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModelDto model)

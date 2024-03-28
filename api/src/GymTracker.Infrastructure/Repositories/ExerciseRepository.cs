@@ -31,14 +31,27 @@ public class ExerciseRepository : IExerciseRepository
 
     public async Task<Exercise> CreateExerciseAsync(Exercise exercise)
     {
-        await _context.Exercises.AddAsync(exercise);
-        await _context.SaveChangesAsync();
-        return exercise;
+        if (await _context.Workouts.AnyAsync(w => w.Id == exercise.WorkoutId))
+        {
+            await _context.Exercises.AddAsync(exercise);
+            await _context.SaveChangesAsync();
+            return exercise;
+        }
+        else
+        {
+            throw new InvalidOperationException("Exercise cannot be created without a valid workout.");
+        }
     }
 
     public async Task UpdateExerciseAsync(Exercise exercise)
     {
-        _context.Exercises.Update(exercise);
+        var existingExercise = await _context.Exercises.FindAsync(exercise.Id);
+        if (existingExercise == null)
+        {
+            throw new InvalidOperationException("Exercise to update not found.");
+        }
+
+        _context.Entry(existingExercise).CurrentValues.SetValues(exercise);
         await _context.SaveChangesAsync();
     }
 
@@ -49,6 +62,10 @@ public class ExerciseRepository : IExerciseRepository
         {
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new InvalidOperationException("Exercise to delete not found.");
         }
     }
 }

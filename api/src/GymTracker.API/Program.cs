@@ -49,6 +49,7 @@ public class Program
         builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+        builder.Services.AddScoped<ExerciseService>();
         builder.Services.AddScoped<WorkoutService>();
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<JwtTokenService>();
@@ -56,7 +57,6 @@ public class Program
 
         var app = builder.Build();
 
-        // Seed Roles
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;

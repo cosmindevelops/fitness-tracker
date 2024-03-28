@@ -1,8 +1,18 @@
-﻿namespace GymTracker.Core.Common;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GymTracker.Core.Common;
 
 public class RegisterModelDto
 {
+    [Required]
+    [MinLength(3)]
     public string Username { get; set; }
+
+    [Required]
+    [EmailAddress]
     public string Email { get; set; }
+
+    [Required]
+    [MinLength(6)]
     public string Password { get; set; }
 }

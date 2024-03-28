@@ -16,5 +16,8 @@ public class MappingProfile : Profile
         CreateMap<WorkoutCreateDto, Workout>();
         CreateMap<WorkoutUpdateDto, Workout>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        CreateMap<ExerciseCreateDto, Exercise>();
+        CreateMap<ExerciseUpdateDto, Exercise>();
     }
 }
