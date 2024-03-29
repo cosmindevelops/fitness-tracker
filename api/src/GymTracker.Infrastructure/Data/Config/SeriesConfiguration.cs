@@ -11,6 +11,7 @@ public class SeriesConfiguration : IEntityTypeConfiguration<Series>
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Repetitions).IsRequired();
         builder.Property(s => s.RPE).IsRequired();
+        builder.Property(s => s.Weight).IsRequired();
 
         builder.HasOne(s => s.Exercise)
                .WithMany(e => e.Series)

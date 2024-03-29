@@ -5,6 +5,7 @@ public class Series
     public Guid Id { get; set; }
     public int Repetitions { get; set; }
     public int RPE { get; set; }
+    public double Weight { get; set; }
 
     public Guid ExerciseId { get; set; }
     public Exercise Exercise { get; set; }

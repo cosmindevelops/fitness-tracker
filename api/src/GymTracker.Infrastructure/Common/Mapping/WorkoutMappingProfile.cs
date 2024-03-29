@@ -18,6 +18,11 @@ public class MappingProfile : Profile
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<ExerciseCreateDto, Exercise>();
-        CreateMap<ExerciseUpdateDto, Exercise>();
+        CreateMap<ExerciseUpdateDto, Exercise>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        CreateMap<SeriesCreateDto, Series>();
+        CreateMap<SeriesUpdateDto, Series>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

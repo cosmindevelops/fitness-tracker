@@ -50,6 +50,7 @@ public class Program
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
         builder.Services.AddScoped<ExerciseService>();
+        builder.Services.AddScoped<SeriesService>();
         builder.Services.AddScoped<WorkoutService>();
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<JwtTokenService>();
