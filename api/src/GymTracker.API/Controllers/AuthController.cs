@@ -13,7 +13,12 @@ public class AuthController : ControllerBase
     {
         _authService = authService;
     }
-
+    
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <param name="model">The registration model.</param>
+    /// <returns>An IActionResult representing the result of the registration.</returns>
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterModelDto model)
     {
@@ -30,6 +35,11 @@ public class AuthController : ControllerBase
         return Ok(new { UserId, Token });
     }
 
+    /// <summary>
+    /// Logs in a user with the provided credentials.
+    /// </summary>
+    /// <param name="model">The login model containing user credentials.</param>
+    /// <returns>An IActionResult representing the login result.</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModelDto model)
     {

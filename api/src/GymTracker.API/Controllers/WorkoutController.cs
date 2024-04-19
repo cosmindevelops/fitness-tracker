@@ -21,6 +21,11 @@ public class WorkoutController : ControllerBase
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Creates a new workout based on the provided workout data.
+    /// </summary>
+    /// <param name="workoutDto">The workout data to create the workout from.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the created workout.</returns>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] WorkoutCreateDto workoutDto)
     {
@@ -29,6 +34,11 @@ public class WorkoutController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { workoutId = result.Id }, result);
     }
 
+    /// <summary>
+    /// Retrieves a workout by its ID for the authenticated user.
+    /// </summary>
+    /// <param name="workoutId">The ID of the workout to retrieve.</param>
+    /// <returns>An IActionResult containing the workout if found, or a 404 Not Found response if not found.</returns>
     [HttpGet("{workoutId}")]
     public async Task<IActionResult> GetById(Guid workoutId)
     {
@@ -43,6 +53,10 @@ public class WorkoutController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Retrieves all workouts for the authenticated user.
+    /// </summary>
+    /// <returns>An IActionResult containing a list of workouts if found, or a 404 Not Found response if not found.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -51,6 +65,12 @@ public class WorkoutController : ControllerBase
         return Ok(results);
     }
 
+    /// <summary>
+    /// Updates a workout with the specified workoutId for the authenticated user.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout to be updated.</param>
+    /// <param name="workoutDto">The WorkoutUpdateDto object containing the updated workout data.</param>
+    /// <returns>An IActionResult indicating the result of the update operation.</returns>
     [HttpPut("{workoutId}")]
     public async Task<IActionResult> Update(Guid workoutId, [FromBody] WorkoutUpdateDto workoutDto)
     {
@@ -64,7 +84,12 @@ public class WorkoutController : ControllerBase
 
         return NoContent();
     }
-
+    
+    /// <summary>
+    /// Deletes a workout with the specified workoutId for the authenticated user.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout to be deleted.</param>
+    /// <returns>An IActionResult indicating the result of the deletion operation. If the deletion is successful, returns NoContent. Otherwise, returns NotFound.</returns>
     [HttpDelete("{workoutId}")]
     public async Task<IActionResult> Delete(Guid workoutId)
     {

@@ -21,6 +21,12 @@ public class ExerciseController : ControllerBase
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Creates a new exercise for a specific workout.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout for which the exercise is created.</param>
+    /// <param name="exerciseDto">The ExerciseCreateDto object containing the exercise data.</param>
+    /// <returns>An IActionResult representing the outcome of the exercise creation process.</returns>
     public async Task<IActionResult> Create(Guid workoutId, [FromBody] ExerciseCreateDto exerciseDto)
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -34,6 +40,12 @@ public class ExerciseController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { workoutId, exerciseId = result.Id }, result);
     }
 
+    /// <summary>
+    /// Retrieves a specific exercise by ID for a given workout.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout.</param>
+    /// <param name="exerciseId">The unique identifier of the exercise.</param>
+    /// <returns>An IActionResult containing the specific exercise information.</returns>
     [HttpGet("{exerciseId}")]
     public async Task<IActionResult> GetById(Guid workoutId, Guid exerciseId)
     {
@@ -48,6 +60,11 @@ public class ExerciseController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Retrieves all exercises for a given workout.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout.</param>
+    /// <returns>An IActionResult containing the results of the operation.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAll(Guid workoutId)
     {
@@ -56,6 +73,13 @@ public class ExerciseController : ControllerBase
         return Ok(results);
     }
 
+    /// <summary>
+    /// Updates an exercise for a specific workout.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout.</param>
+    /// <param name="exerciseId">The unique identifier of the exercise.</param>
+    /// <param name="exerciseDto">The ExerciseUpdateDto object containing the updated exercise data.</param>
+    /// <returns>An IActionResult indicating the result of the update operation.</returns>
     [HttpPut("{exerciseId}")]
     public async Task<IActionResult> Update(Guid workoutId, Guid exerciseId, [FromBody] ExerciseUpdateDto exerciseDto)
     {
@@ -70,6 +94,12 @@ public class ExerciseController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Deletes an exercise by its ID from a specific workout.
+    /// </summary>
+    /// <param name="workoutId">The unique identifier of the workout.</param>
+    /// <param name="exerciseId">The unique identifier of the exercise.</param>
+    /// <returns>An IActionResult indicating the result of the deletion operation.</returns>
     [HttpDelete("{exerciseId}")]
     public async Task<IActionResult> Delete(Guid workoutId, Guid exerciseId)
     {
