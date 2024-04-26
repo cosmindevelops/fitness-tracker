@@ -1,4 +1,4 @@
-﻿namespace GymTracker.Core.DTOs;
+﻿namespace GymTracker.Infrastructure.Common;
 
 public class ExerciseCreateDto
 {

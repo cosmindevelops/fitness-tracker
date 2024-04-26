@@ -4,9 +4,9 @@ namespace GymTracker.Infrastructure.Repositories.Interfaces;
 
 public interface IWorkoutRepository
 {
-    Task<IEnumerable<Workout>> GetAllWorkoutsAsync();
+    Task<IEnumerable<Workout>> GetAllWorkoutsAsync(Guid userId);
 
-    Task<Workout> GetWorkoutByIdAsync(Guid workoutId);
+    Task<Workout> GetWorkoutByIdAsync(Guid userId, Guid workoutId);
 
     Task<Workout> CreateWorkoutAsync(Workout workout);
 

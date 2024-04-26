@@ -44,11 +44,24 @@ public class UserRepository : IUserRepository
         return await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
     }
 
+    public async Task<User> FindByEmailAsync(string email)
+    {
+        return await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+    }
+
     public async Task<List<string>> GetUserRolesAsync(User user)
     {
         return await _context.UserRoles.Where(ur => ur.UserId == user.Id)
                                         .Include(ur => ur.Role)
                                         .Select(ur => ur.Role.Name)
                                         .ToListAsync();
+    }
+
+    public async Task<User> FindByIdAsync(Guid userId)
+    {
+        return await _context.Users
+                             .Include(u => u.UserRoles)
+                             .ThenInclude(ur => ur.Role)
+                             .SingleOrDefaultAsync(u => u.Id == userId);
     }
 }

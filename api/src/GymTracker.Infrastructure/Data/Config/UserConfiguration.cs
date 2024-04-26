@@ -11,5 +11,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Username).IsRequired().HasMaxLength(50);
         builder.Property(u => u.Email).IsRequired();
         builder.Property(u => u.PasswordHash).IsRequired().HasColumnType("nvarchar(max)");
+
+        builder.HasIndex(u => u.Username).IsUnique();
+        builder.HasIndex(u => u.Email).IsUnique();
     }
 }

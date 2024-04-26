@@ -14,20 +14,21 @@ public class WorkoutRepository : IWorkoutRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Workout>> GetAllWorkoutsAsync()
+    public async Task<IEnumerable<Workout>> GetAllWorkoutsAsync(Guid userId)
     {
         return await _context.Workouts
-                             .Include(w => w.Exercises)
-                             .ThenInclude(e => e.Series)
-                             .ToListAsync();
+                         .Include(w => w.Exercises)
+                         .ThenInclude(e => e.Series)
+                         .Where(w => w.UserId == userId)
+                         .ToListAsync();
     }
 
-    public async Task<Workout> GetWorkoutByIdAsync(Guid workoutId)
+    public async Task<Workout> GetWorkoutByIdAsync(Guid userId, Guid workoutId)
     {
         return await _context.Workouts
                              .Include(w => w.Exercises)
                              .ThenInclude(e => e.Series)
-                             .FirstOrDefaultAsync(w => w.Id == workoutId);
+                             .FirstOrDefaultAsync(w => w.Id == workoutId && w.UserId == userId);
     }
 
     public async Task<Workout> CreateWorkoutAsync(Workout workout)

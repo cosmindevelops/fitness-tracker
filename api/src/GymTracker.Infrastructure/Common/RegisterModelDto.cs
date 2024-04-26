@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GymTracker.Core.Common;
+namespace GymTracker.Infrastructure.Common;
 
 public class RegisterModelDto
 {

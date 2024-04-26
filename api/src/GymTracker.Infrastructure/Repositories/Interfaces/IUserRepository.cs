@@ -10,5 +10,9 @@ public interface IUserRepository
 
     Task<User> FindByUsernameAsync(string username);
 
+    Task<User> FindByEmailAsync(string email);
+
     Task<List<string>> GetUserRolesAsync(User user);
+
+    Task<User> FindByIdAsync(Guid userId);
 }

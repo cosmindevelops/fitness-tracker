@@ -1,11 +1,10 @@
-﻿using GymTracker.Core.Common;
+﻿using GymTracker.Infrastructure.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymTracker.API.Controllers;
 
-[ApiController]
-[Route("[controller]")]
-public class AuthController : ControllerBase
+[Route("api/[controller]")]
+public class AuthController : BaseController
 {
     private readonly AuthService _authService;
 
@@ -13,43 +12,44 @@ public class AuthController : ControllerBase
     {
         _authService = authService;
     }
-    
-    /// <summary>
-    /// Registers a new user.
-    /// </summary>
-    /// <param name="model">The registration model.</param>
-    /// <returns>An IActionResult representing the result of the registration.</returns>
+
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterModelDto model)
     {
-        if (!ModelState.IsValid)
+        var validationResult = ValidateModel();
+        if (validationResult != null)
         {
-            return BadRequest(ModelState);
+            return validationResult;
         }
+
         var (Success, UserId, Token) = await _authService.RegisterAsync(model);
         if (!Success)
         {
+            LogError("Attempt to register user failed: User already exists.");
             return BadRequest("User already exists.");
         }
 
-        return Ok(new { UserId, Token });
+        LogInformation("User registered successfully.");
+        return CreatedAtAction(nameof(UserController.GetUserById), "User", new { userId = UserId }, new AuthResponseDto { UserId = Guid.Parse(UserId), Token = Token });
     }
 
-    /// <summary>
-    /// Logs in a user with the provided credentials.
-    /// </summary>
-    /// <param name="model">The login model containing user credentials.</param>
-    /// <returns>An IActionResult representing the login result.</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModelDto model)
     {
-        var (Success, UserId, Token) = await _authService.LoginAsync(model);
-
-        if (!Success)
+        var validationResult = ValidateModel();
+        if (validationResult != null)
         {
-            return BadRequest("Invalid username or password.");
+            return validationResult;
         }
 
-        return Ok(new { UserId, Token });
+        var (Success, UserId, Token) = await _authService.LoginAsync(model);
+        if (!Success)
+        {
+            LogError("Login attempt failed: Invalid username or password.");
+            return Unauthorized("Invalid username or password.");
+        }
+
+        LogInformation("User logged in successfully.");
+        return Ok(new AuthResponseDto { UserId = Guid.Parse(UserId), Token = Token });
     }
 }

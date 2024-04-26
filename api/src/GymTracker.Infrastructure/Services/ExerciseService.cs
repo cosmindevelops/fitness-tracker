@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using GymTracker.Core.DTOs;
 using GymTracker.Core.Entities;
+using GymTracker.Infrastructure.Common;
+using GymTracker.Infrastructure.Common.Utility;
 using GymTracker.Infrastructure.Repositories.Interfaces;
 
 namespace GymTracker.Infrastructure.Services;
@@ -18,64 +19,13 @@ public class ExerciseService
         _mapper = mapper;
     }
 
-    public async Task<ExerciseResponseDto> CreateExerciseAsync(Guid userId, Guid workoutId, ExerciseCreateDto exerciseDto)
-    {
-        var workout = await _workoutRepository.GetWorkoutByIdAsync(workoutId);
-        if (workout == null || workout.UserId != userId)
-        {
-            throw new UnauthorizedAccessException("Cannot create an exercise for a workout that does not belong to the user.");
-        }
-
-        var exercise = _mapper.Map<Exercise>(exerciseDto);
-        exercise.WorkoutId = workoutId;
-        var createdExercise = await _exerciseRepository.CreateExerciseAsync(exercise);
-        return _mapper.Map<ExerciseResponseDto>(createdExercise);
-    }
-
-    public async Task<bool> UpdateExerciseAsync(Guid userId, Guid workoutId, Guid exerciseId, ExerciseUpdateDto exerciseDto)
-    {
-        var workout = await _workoutRepository.GetWorkoutByIdAsync(workoutId);
-        if (workout == null || workout.UserId != userId)
-        {
-            return false;
-        }
-
-        var exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
-        if (exercise == null || exercise.WorkoutId != workoutId)
-        {
-            return false;
-        }
-
-        _mapper.Map(exerciseDto, exercise);
-        await _exerciseRepository.UpdateExerciseAsync(exercise);
-        return true;
-    }
-
-    public async Task<bool> DeleteExerciseAsync(Guid userId, Guid workoutId, Guid exerciseId)
-    {
-        var workout = await _workoutRepository.GetWorkoutByIdAsync(workoutId);
-        if (workout == null || workout.UserId != userId)
-        {
-            return false;
-        }
-
-        var exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
-        if (exercise == null || exercise.WorkoutId != workoutId)
-        {
-            return false;
-        }
-
-        await _exerciseRepository.DeleteExerciseAsync(exerciseId);
-        return true;
-    }
-
     public async Task<IEnumerable<ExerciseResponseDto>> GetAllExercisesForWorkoutAsync(Guid userId, Guid workoutId)
     {
-        var workout = await _workoutRepository.GetWorkoutByIdAsync(workoutId);
-        if (workout == null || workout.UserId != userId)
-        {
-            throw new UnauthorizedAccessException("Cannot access exercises for a workout that does not belong to the user.");
-        }
+        GuidValidator.Validate(userId, workoutId);
+
+        var workout = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
+
+        EntityValidator.EnsureWorkoutExists(workout, workoutId);
 
         var exercises = await _exerciseRepository.GetAllExercisesForWorkoutAsync(workoutId);
         return _mapper.Map<IEnumerable<ExerciseResponseDto>>(exercises);
@@ -83,18 +33,62 @@ public class ExerciseService
 
     public async Task<ExerciseResponseDto> GetExerciseByIdAsync(Guid userId, Guid workoutId, Guid exerciseId)
     {
-        var workout = await _workoutRepository.GetWorkoutByIdAsync(workoutId);
-        if (workout == null || workout.UserId != userId)
-        {
-            return null;
-        }
+        GuidValidator.Validate(userId, workoutId, exerciseId);
+
+        var workout = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
+
+        EntityValidator.EnsureWorkoutExists(workout, workoutId);
 
         var exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
-        if (exercise == null || exercise.WorkoutId != workoutId)
-        {
-            return null;
-        }
+
+        EntityValidator.EnsureExerciseExists(exercise, exerciseId, workoutId);
 
         return _mapper.Map<ExerciseResponseDto>(exercise);
+    }
+
+    public async Task<ExerciseResponseDto> CreateExerciseAsync(Guid userId, Guid workoutId, ExerciseCreateDto exerciseDto)
+    {
+        GuidValidator.Validate(userId, workoutId);
+
+        var workout = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
+
+        EntityValidator.EnsureWorkoutExists(workout, workoutId);
+
+        var exercise = _mapper.Map<Exercise>(exerciseDto);
+        exercise.WorkoutId = workoutId;
+        var createdExercise = await _exerciseRepository.CreateExerciseAsync(exercise);
+        return _mapper.Map<ExerciseResponseDto>(createdExercise);
+    }
+
+    public async Task<Exercise> UpdateExerciseAsync(Guid userId, Guid workoutId, Guid exerciseId, ExerciseUpdateDto exerciseDto)
+    {
+        GuidValidator.Validate(userId, workoutId, exerciseId);
+
+        var workout = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
+
+        EntityValidator.EnsureWorkoutExists(workout, workoutId);
+
+        var exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
+
+        EntityValidator.EnsureExerciseExists(exercise, exerciseId, workoutId);
+
+        _mapper.Map(exerciseDto, exercise);
+        await _exerciseRepository.UpdateExerciseAsync(exercise);
+        return exercise;
+    }
+
+    public async Task DeleteExerciseAsync(Guid userId, Guid workoutId, Guid exerciseId)
+    {
+        GuidValidator.Validate(userId, workoutId, exerciseId);
+
+        var workout = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
+
+        EntityValidator.EnsureWorkoutExists(workout, workoutId);
+
+        var exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
+
+        EntityValidator.EnsureExerciseExists(exercise, exerciseId, workoutId);
+
+        await _exerciseRepository.DeleteExerciseAsync(exerciseId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using GymTracker.Infrastructure.Authentication;
+﻿using GymTracker.API.Exceptions;
+using GymTracker.Infrastructure.Authentication;
 using GymTracker.Infrastructure.Common.Mapping;
 using GymTracker.Infrastructure.Data;
 using GymTracker.Infrastructure.Repositories;
@@ -7,6 +8,7 @@ using GymTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 
 namespace GymTracker.API;
@@ -17,44 +19,50 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.File("logs/myapp.txt", rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
             b => b.MigrationsAssembly("GymTracker.Infrastructure")));
 
         var jwtSection = builder.Configuration.GetSection("Jwt");
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSection["Secret"])),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidIssuer = jwtSection["Issuer"],
-                ValidAudience = jwtSection["Audience"]
-            };
-        });
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSection["Secret"])),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = jwtSection["Issuer"],
+                    ValidAudience = jwtSection["Audience"]
+                };
+            });
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        // Register repositories
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
         builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
         builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+        // Register services
         builder.Services.AddScoped<ExerciseService>();
         builder.Services.AddScoped<SeriesService>();
         builder.Services.AddScoped<WorkoutService>();
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<JwtTokenService>();
         builder.Services.AddScoped<PasswordHasher>();
+
+        builder.Host.UseSerilog();
 
         var app = builder.Build();
 
@@ -82,6 +90,7 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+        app.UseMiddleware<ErrorHandlingMiddleware>();
 
         app.Run();
     }

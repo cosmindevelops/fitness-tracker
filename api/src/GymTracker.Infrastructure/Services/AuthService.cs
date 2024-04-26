@@ -1,6 +1,6 @@
-﻿using GymTracker.Core.Common;
-using GymTracker.Core.Entities;
+﻿using GymTracker.Core.Entities;
 using GymTracker.Infrastructure.Authentication;
+using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Repositories.Interfaces;
 using GymTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
@@ -45,12 +45,18 @@ public class AuthService
 
     public async Task<(bool Success, string UserId, string Token)> LoginAsync(LoginModelDto model)
     {
-        var user = await _userRepository.FindByUsernameAsync(model.Username);
+        var user = await _userRepository.FindByEmailAsync(model.Email);
 
-        if (user == null) return (false, null, null);
+        if (user == null)
+        {
+            return (false, null, null);
+        }
 
         var verificationResult = _passwordHasher.VerifyPassword(user, model.Password, user.PasswordHash);
-        if (verificationResult != PasswordVerificationResult.Success) return (false, null, null);
+        if (verificationResult != PasswordVerificationResult.Success)
+        {
+            return (false, null, null);
+        }
 
         var roles = await _userRepository.GetUserRolesAsync(user);
 
