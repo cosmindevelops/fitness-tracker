@@ -91,6 +91,10 @@ public class Program
         app.UseAuthorization();
         app.MapControllers();
         app.UseMiddleware<ErrorHandlingMiddleware>();
+        app.UseCors(builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 
         app.Run();
     }
