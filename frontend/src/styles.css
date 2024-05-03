@@ -7,3 +7,13 @@ body {
     background-repeat: no-repeat;
 }
 
+.toast-bottom-center {
+    bottom: 50px; /* Adjust this value as needed */
+}
+
+.toast-message {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

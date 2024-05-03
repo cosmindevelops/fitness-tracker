@@ -4,7 +4,6 @@
     <a href="#">Workout</a>
     <a href="#">About</a>
   </nav>
-
   <div class="navbar auth-links">
     <a routerLink="/auth" class="login-btn">Login</a>
     <a routerLink="/auth" class="register-btn">Register</a>
@@ -15,7 +14,6 @@
 <div class="container">
   <div class="content">
     <h2 class="logo"><i class="bx bxs-castle"></i> Level Forge</h2>
-
     <div class="text-sci">
       <h2>Welcome!<br /><span></span>To Our New Website</h2>
       <p>Lore ipsum dolar sit amet consectetur adipisicing elit.</p>
@@ -37,20 +35,28 @@
           <span class="icon"><i class="bx bxs-envelope"></i></span>
           <input type="text" formControlName="email" required />
           <label>Email</label>
+          <div *ngIf="loginForm.get('email')?.errors?.['required'] && (loginForm.get('email')?.touched || submitted)">
+            <small class="text-danger">Please enter a valid email.</small>
+          </div>
         </div>
+
         <div class="input-box">
           <span class="icon"><i class="bx bxs-lock-alt"></i></span>
           <input type="password" formControlName="password" required />
           <label>Password</label>
+          <div *ngIf="loginForm.get('password')?.errors?.['required'] && (loginForm.get('password')?.touched || submitted)">
+            <small class="text-danger">Password is required.</small>
+          </div>
+          <div *ngIf="loginForm.get('password')?.errors?.['minlength'] && (loginForm.get('password')?.touched || submitted)">
+            <small class="text-danger">Password must be at least 6 characters long.</small>
+          </div>
         </div>
-        <br>
+        <br />
         <!-- <div class="remember-forgot">
           <label><input type="checkbox" />Remember me</label>
           <a routerLink="/auth">Forgot Password?</a>
         </div> -->
-
         <button type="submit" class="btn">Sign in</button>
-
         <div class="login-register">
           <p>
             Don't have an account?
@@ -68,28 +74,41 @@
           <span class="icon"><i class="bx bxs-user"></i></span>
           <input type="text" formControlName="username" required />
           <label>Username</label>
+          <div *ngIf="registerForm.get('username')?.errors?.['minlength'] && (registerForm.get('username')?.touched || submitted)">
+            <small class="text-danger">Username must be at least 3 characters long.</small>
+          </div>
+          <div *ngIf="registerForm.get('username')?.errors?.['required'] && (registerForm.get('username')?.touched || submitted)">
+            <small class="text-danger">Username is required.</small>
+          </div>
         </div>
 
         <div class="input-box">
           <span class="icon"><i class="bx bxs-envelope"></i></span>
           <input type="text" formControlName="email" required />
           <label>Email</label>
+          <div *ngIf="registerForm.get('email')?.errors?.['required'] && (registerForm.get('email')?.touched || submitted)">
+            <small class="text-danger">Please enter a valid email.</small>
+          </div>
         </div>
 
         <div class="input-box">
           <span class="icon"><i class="bx bxs-lock-alt"></i></span>
           <input type="password" formControlName="password" required />
           <label>Password</label>
+          <div *ngIf="registerForm.get('password')?.errors?.['required'] && (registerForm.get('password')?.touched || submitted)">
+            <small class="text-danger">Password is required.</small>
+          </div>
+          <div *ngIf="registerForm.get('password')?.errors?.['minlength'] && (registerForm.get('password')?.touched || submitted)">
+            <small class="text-danger">Password must be at least 6 characters long.</small>
+          </div>
         </div>
-        <br>
+        <br />
         <!-- <div class="remember-forgot">
           <label>
             <input type="checkbox" />I agree to the terms & conditions
           </label>
         </div> -->
-
         <button type="submit" class="btn">Sign in</button>
-
         <div class="login-register">
           <p>
             Already have an account?
