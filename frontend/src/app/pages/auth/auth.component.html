@@ -1,22 +1,12 @@
-<header class="header">
-  <nav class="navbar">
-    <a href="#">Home</a>
-    <a href="#">Workout</a>
-    <a href="#">About</a>
-  </nav>
-  <div class="navbar auth-links">
-    <a routerLink="/auth" class="login-btn">Login</a>
-    <a routerLink="/auth" class="register-btn">Register</a>
-  </div>
-</header>
-
 <div class="background"></div>
 <div class="container">
   <div class="content">
     <h2 class="logo"><i class="bx bxs-castle"></i> Level Forge</h2>
     <div class="text-sci">
-      <h2>Welcome!<br /><span></span>To Our New Website</h2>
-      <p>Lore ipsum dolar sit amet consectetur adipisicing elit.</p>
+      <h2>Welcome to Your Fitness Tracker!</h2>
+      <p>
+        Join our community and start your personalized fitness journey today. Easy tracking, insightful progress reports, and real-time goal setting await you!
+      </p>
       <div class="social-icons">
         <a href="#"><i class="bx bxl-linkedin"></i></a>
         <a href="#"><i class="bx bxl-facebook"></i></a>
@@ -26,11 +16,10 @@
     </div>
   </div>
 
-  <div class="logreg-box">
+  <div class="logreg-box" [class.active]="isRegisterActive">
     <div class="form-box login">
       <form [formGroup]="loginForm" (ngSubmit)="login()">
         <h2>Sign In</h2>
-
         <div class="input-box">
           <span class="icon"><i class="bx bxs-envelope"></i></span>
           <input type="text" formControlName="email" required />
@@ -39,7 +28,6 @@
             <small class="text-danger">Please enter a valid email.</small>
           </div>
         </div>
-
         <div class="input-box">
           <span class="icon"><i class="bx bxs-lock-alt"></i></span>
           <input type="password" formControlName="password" required />
@@ -52,15 +40,15 @@
           </div>
         </div>
         <br />
-        <!-- <div class="remember-forgot">
-          <label><input type="checkbox" />Remember me</label>
-          <a routerLink="/auth">Forgot Password?</a>
-        </div> -->
+        <div class="remember-forgot">
+          <label><input type="checkbox" formControlName="rememberMe" />Remember me</label>
+          <!-- <a routerLink="/auth">Forgot Password?</a> -->
+        </div>
         <button type="submit" class="btn">Sign in</button>
         <div class="login-register">
           <p>
             Don't have an account?
-            <a routerLink="/auth" class="register-link">Sign up</a>
+            <a (click)="toggleForms()" class="register-link">Sign up</a>
           </p>
         </div>
       </form>
@@ -103,16 +91,11 @@
           </div>
         </div>
         <br />
-        <!-- <div class="remember-forgot">
-          <label>
-            <input type="checkbox" />I agree to the terms & conditions
-          </label>
-        </div> -->
         <button type="submit" class="btn">Sign in</button>
         <div class="login-register">
           <p>
             Already have an account?
-            <a routerLink="/auth" class="login-link">Sign in</a>
+            <a (click)="toggleForms()" class="login-link">Sign in</a>
           </p>
         </div>
       </form>

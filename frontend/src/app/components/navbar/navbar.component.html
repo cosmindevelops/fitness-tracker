@@ -1,11 +1,12 @@
 <header class="header">
   <nav class="navbar">
-    <a href="#">Home</a>
-    <a href="#">Workout</a>
-    <a href="#">About</a>
+    <a routerLink="/home">Home</a>
+    <a routerLink="/workout">Workout</a>
+    <a routerLink="/about">About</a>
   </nav>
   <nav class="navbar auth-links">
-    <a routerLink="/auth" class="login-btn">Login</a>
-    <a routerLink="/auth" class="register-btn">Register</a>
+    <a *ngIf="!authService.isLoggedIn()" [routerLink]="['/auth']" [queryParams]="{ form: 'login' }" class="login-btn">Login</a>
+    <a *ngIf="!authService.isLoggedIn()" [routerLink]="['/auth']" [queryParams]="{ form: 'register' }" class="register-btn">Register</a>
+    <a *ngIf="authService.isLoggedIn()" (click)="logout()" class="logout-btn">Logout</a>
   </nav>
 </header>

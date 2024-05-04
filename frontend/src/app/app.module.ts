@@ -14,14 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    NavbarComponent,
-    HomeComponent,
-    WorkoutComponent,
-    AuthComponent,
-    
-  ],
+  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -32,10 +25,12 @@ import { ToastrModule } from 'ngx-toastr';
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-bottom-center',
+      maxOpened: 1,
+      autoDismiss: true,
       preventDuplicates: true,
     }),
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

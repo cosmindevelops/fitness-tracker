@@ -8,50 +8,58 @@ import { AuthResponse } from '../models/AuthResponse';
 import { RegisterRequest } from '../models/RegisterRequest';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private apiURL = 'https://localhost:7168/api/auth';
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {}
 
-  login(loginRequest: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiURL}/login`, loginRequest)
-      .pipe(
-        tap(res => {
-          localStorage.setItem('access_token', res.token); // Save token
-          console.log('Login successful');
-        }),
-        catchError((error: HttpErrorResponse) => {
-          console.error('Login attempt failed:', error);
-          return throwError(() => new Error('Login attempt failed'));
-        })
-      );
+  login(loginRequest: LoginRequest, rememberMe: boolean): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiURL}/login`, loginRequest).pipe(
+      tap((res) => this.saveToken(res.token, rememberMe)),
+      catchError(this.handleError.bind(this))
+    );
   }
 
   register(registerRequest: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiURL}/register`, registerRequest)
-      .pipe(
-        tap(() => {
-          console.log('Registration successful');
-        }),
-        catchError((error: HttpErrorResponse) => {
-          console.error('Registration failed:', error);
-          return throwError(() => new Error('Registration failed'));
-        })
-      );
+    return this.http.post<AuthResponse>(`${this.apiURL}/register`, registerRequest).pipe(
+      tap(() => {}),
+      catchError(this.handleError.bind(this))
+    );
   }
 
   logout(): void {
     localStorage.removeItem('access_token');
-    this.router.navigate(['/login']);
+    sessionStorage.removeItem('access_token');
+    this.router.navigate(['/home']);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('access_token');
+    return sessionStorage.getItem('access_token') || localStorage.getItem('access_token');
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Request failed';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Network error: ${error.error.message}`;
+    } else if (error.status === 0) {
+      errorMessage = 'Network error, please try again';
+    } else {
+      errorMessage = typeof error.error === 'string' ? error.error : error.error.message ? error.error.message : error.statusText || errorMessage;
+    }
+    return throwError(() => new Error(errorMessage));
+  }
+
+  private saveToken(token: string, rememberMe: boolean): void {
+    if (rememberMe) {
+      localStorage.setItem('access_token', token);
+    } else {
+      sessionStorage.setItem('access_token', token);
+    }
   }
 }

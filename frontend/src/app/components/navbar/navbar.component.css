@@ -38,10 +38,10 @@
   border-radius: 5px;
   transform: translateY(10px);
   opacity: 0;
-  transition: .5s;
+  transition: 0.5s;
 }
 
-.navbar a:hover::after{
+.navbar a:hover::after {
   transform: translateY(0);
   opacity: 1;
 }
@@ -55,4 +55,8 @@
   align-items: center;
   justify-content: center;
   margin-left: -10px;
+}
+
+.logout-btn:hover {
+  cursor: pointer;
 }

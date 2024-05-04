@@ -3,7 +3,7 @@
     "tabWidth": 2,
     "useTabs": false,
     "singleQuote": true,
-    "printWidth": 1600,
+    "printWidth": 160,
     "bracketSpacing": true,
     "singleAttributePerLine": false
   }

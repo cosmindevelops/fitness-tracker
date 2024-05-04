@@ -1,19 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-    background-image: url('/assets/images/background1.jpg');
-    background-blend-mode: multiply;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
+  background-image: url('/assets/images/background1.jpg');
+  background-blend-mode: multiply;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .toast-bottom-center {
-    bottom: 50px; /* Adjust this value as needed */
+  bottom: 50px;
 }
 
 .toast-message {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
