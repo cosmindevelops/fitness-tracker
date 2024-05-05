@@ -1,12 +1,53 @@
 <header class="header">
-  <nav class="navbar">
-    <a routerLink="/home">Home</a>
-    <a routerLink="/workout">Workout</a>
-    <a routerLink="/about">About</a>
-  </nav>
-  <nav class="navbar auth-links">
-    <a *ngIf="!authService.isLoggedIn()" [routerLink]="['/auth']" [queryParams]="{ form: 'login' }" class="login-btn">Login</a>
-    <a *ngIf="!authService.isLoggedIn()" [routerLink]="['/auth']" [queryParams]="{ form: 'register' }" class="register-btn">Register</a>
-    <a *ngIf="authService.isLoggedIn()" (click)="logout()" class="logout-btn">Logout</a>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+    <div class="container-fluid">
+      <!-- Toggle Button -->
+      <button
+        class="navbar-toggler shadow-none border-0"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar"
+        aria-controls="offcanvasNavbar"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- SideBar -->
+      <div class="sidebar offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <!-- Sidebar Header -->
+        <div class="offcanvas-header text-white border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Logo</h5>
+          <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <!-- Sidebar body -->
+        <div class="offcanvas-body d-flex flex-column flex-lg-row p-4 p-lg-0">
+          <ul class="navbar-nav align-items-center fs-5 flex-grow-1 pe-3">
+            <li class="nav-item mx-2">
+              <a class="nav-link active" aria-current="page" routerLink="/home" data-bs-dismiss="offcanvas">Home</a>
+            </li>
+            <li class="nav-item mx-2">
+              <a class="nav-link" routerLink="/workout" data-bs-dismiss="offcanvas">Workout</a>
+            </li>
+            <li class="nav-item mx-2">
+              <a class="nav-link" routerLink="/about" data-bs-dismiss="offcanvas">About</a>
+            </li>
+          </ul>
+          <div class="d-flex flex-column flex-lg-row align-items-center auth-links">
+            <a *ngIf="!authService.isLoggedIn()" [routerLink]="['/auth']" [queryParams]="{ form: 'login' }" class="login-btn" data-bs-dismiss="offcanvas"
+              >Login</a
+            >
+            <a
+              *ngIf="!authService.isLoggedIn()"
+              [routerLink]="['/auth']"
+              [queryParams]="{ form: 'register' }"
+              class="text-white register-btn"
+              data-bs-dismiss="offcanvas"
+              >Sign Up</a
+            >
+            <a *ngIf="authService.isLoggedIn()" (click)="logout()" class="logout-btn" data-bs-dismiss="offcanvas">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
 </header>

@@ -1,62 +1,100 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+.navbar-nav {
+  justify-content: flex-start;
+  padding-left: 50px;
+  margin: 15px;
 }
 
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 25px 12.5%;
-  background-color: transparent;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 100;
-}
-
-.navbar a {
-  position: relative;
-  font-size: 22px;
-  color: #e4e4e4;
-  text-decoration: none;
-  font-weight: 500;
-  margin-right: 30px;
-}
-
-.navbar a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 100%;
-  height: 2px;
-  background: #e4e4e4;
-  border-radius: 5px;
-  transform: translateY(10px);
-  opacity: 0;
-  transition: 0.5s;
-}
-
-.navbar a:hover::after {
-  transform: translateY(0);
-  opacity: 1;
+.navbar-toggler {
+  border: none;
+  box-shadow: none;
 }
 
 .navbar .register-btn {
   background-image: linear-gradient(to right, #06b4fe, #0051ff);
   border-radius: 25px;
-  height: 32px;
-  width: 100px;
+  height: 28px;
+  width: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: -10px;
+  text-decoration: none;
 }
 
-.logout-btn:hover {
+.navbar .login-btn,
+.logout-btn {
+  color: #e4e4e4;
+  height: 32px;
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.logout-btn {
   cursor: pointer;
+}
+
+@media (min-width: 992px) {
+  .auth-links {
+    padding-right: 50px;
+    margin: 15px;
+  }
+
+  .navbar a {
+    position: relative;
+    font-size: 18px;
+    color: #e4e4e4;
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 30px;
+  }
+
+  .navbar a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 1px;
+    width: 100%;
+    height: 2px;
+    background: #e4e4e4;
+    border-radius: 5px;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: 0.5s;
+  }
+
+  .auth-links a::after {
+    bottom: -3px;
+  }
+
+  .navbar a:hover::after {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 990px) {
+  .sidebar {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+  }
+  .navbar-nav {
+    justify-content: center;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  .auth-links {
+    justify-content: left;
+  }
+
+  .auth-links {
+    padding-right: 0;
+    margin: 0;
+  }
+
+  .auth-links {
+    gap: 1rem;
+  }
 }
