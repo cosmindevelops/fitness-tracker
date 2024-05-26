@@ -2,10 +2,11 @@
 using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Common.Utility;
 using GymTracker.Infrastructure.Repositories.Interfaces;
+using GymTracker.Infrastructure.Services.Interfaces;
 
 namespace GymTracker.Infrastructure.Services;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;

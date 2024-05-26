@@ -1,15 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Serilog;
 using System.Security.Claims;
 
 namespace GymTracker.API.Controllers;
 
-[ApiController]
-public class BaseController : ControllerBase
+public abstract class BaseController : ControllerBase
 {
-    protected IActionResult ValidateModel()
+    protected readonly ILogger Logger;
+
+    protected BaseController(ILogger logger)
     {
-        if (!ModelState.IsValid)
+        Logger = logger;
+    }
+
+    protected IActionResult ValidateModel(object model)
+    {
+        if (!TryValidateModel(model))
         {
             var errorMessages = ModelState.Values.SelectMany(val => val.Errors)
                                                 .Select(err => err.ErrorMessage)
@@ -27,24 +32,10 @@ public class BaseController : ControllerBase
             var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdValue) || !Guid.TryParse(userIdValue, out var userId))
             {
+                Logger.LogError("Invalid or missing User ID in the user's claims.");
                 throw new UnauthorizedAccessException("Invalid or missing User ID in the user's claims.");
             }
             return userId;
         }
-    }
-
-    protected void LogInformation(string message)
-    {
-        Log.Information(message);
-    }
-
-    protected void LogError(string message)
-    {
-        Log.Error(message);
-    }
-
-    protected void LogError(Exception ex, string message)
-    {
-        Log.Error(ex, message);
     }
 }

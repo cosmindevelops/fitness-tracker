@@ -1,4 +1,4 @@
-﻿using GymTracker.Infrastructure.Services;
+﻿using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymTracker.API.Controllers;
@@ -6,9 +6,9 @@ namespace GymTracker.API.Controllers;
 [Route("[controller]")]
 public class UserController : BaseController
 {
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
-    public UserController(UserService userService)
+    public UserController(IUserService userService, ILogger<AuthController> logger) : base(logger)
     {
         _userService = userService;
     }

@@ -3,11 +3,13 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { slideDownAnimation, slideDownWithBlurAnimation } from '../../shared/animation';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
+  animations: [slideDownAnimation, slideDownWithBlurAnimation],
 })
 export class AuthComponent implements OnInit {
   loginForm!: FormGroup;
@@ -61,12 +63,16 @@ export class AuthComponent implements OnInit {
     if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe({
         next: () => {
-          this.notificationService.showSuccess('Registration successful');
-          this.loginForm.setValue({ email: this.registerForm.value.email, password: this.registerForm.value.password, rememberMe: false });
-          this.loginForm.updateValueAndValidity();
-          setTimeout(() => {
-            this.login();
-          }, 500);
+          const { email, password } = this.registerForm.value;
+          this.authService.login({ email, password }, false).subscribe({
+            next: () => {
+              this.notificationService.showSuccess('Registration and login successful');
+              this.router.navigate(['/home']);
+            },
+            error: (error) => {
+              this.notificationService.showError('Login after registration failed: ' + error.message);
+            },
+          });
         },
         error: (error) => {
           this.notificationService.showError('Registration failed: ' + error.message);
@@ -76,6 +82,7 @@ export class AuthComponent implements OnInit {
       this.checkFormErrors(this.registerForm);
     }
   }
+  
 
   toggleForms(): void {
     this.isRegisterActive = !this.isRegisterActive;

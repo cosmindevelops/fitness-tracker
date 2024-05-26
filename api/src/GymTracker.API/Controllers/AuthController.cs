@@ -1,4 +1,6 @@
 ﻿using GymTracker.Infrastructure.Common;
+using GymTracker.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymTracker.API.Controllers;
@@ -6,17 +8,18 @@ namespace GymTracker.API.Controllers;
 [Route("api/[controller]")]
 public class AuthController : BaseController
 {
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
 
-    public AuthController(AuthService authService)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger) : base(logger)
     {
         _authService = authService;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterModelDto model)
+    public async Task<IActionResult> Register([FromBody] RegisterModelDto model)
     {
-        var validationResult = ValidateModel();
+        var validationResult = ValidateModel(model);
         if (validationResult != null)
         {
             return validationResult;
@@ -25,18 +28,25 @@ public class AuthController : BaseController
         var (Success, UserId, Token) = await _authService.RegisterAsync(model);
         if (!Success)
         {
-            LogError("Attempt to register user failed: User already exists.");
+            Logger.LogError("Attempt to register user failed: User already exists.");
             return BadRequest("User already exists.");
         }
 
-        LogInformation("User registered successfully.");
-        return CreatedAtAction(nameof(UserController.GetUserById), "User", new { userId = UserId }, new AuthResponseDto { UserId = Guid.Parse(UserId), Token = Token });
+        Logger.LogInformation("User registered successfully.");
+        return Ok();
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginModelDto model)
+    public async Task<IActionResult> Login([FromBody] LoginModelDto model)
     {
-        var validationResult = ValidateModel();
+        if (model == null)
+        {
+            Logger.LogError("Login model is null.");
+            return BadRequest("Invalid login request.");
+        }
+
+        var validationResult = ValidateModel(model);
         if (validationResult != null)
         {
             return validationResult;
@@ -45,11 +55,11 @@ public class AuthController : BaseController
         var (Success, UserId, Token) = await _authService.LoginAsync(model);
         if (!Success)
         {
-            LogError("Login attempt failed: Invalid username or password.");
+            Logger.LogError("Login attempt failed: Invalid username or password.");
             return Unauthorized("Invalid username or password.");
         }
 
-        LogInformation("User logged in successfully.");
+        Logger.LogInformation("User logged in successfully.");
         return Ok(new AuthResponseDto { UserId = Guid.Parse(UserId), Token = Token });
     }
 }

@@ -3,10 +3,11 @@ using GymTracker.Core.Entities;
 using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Common.Utility;
 using GymTracker.Infrastructure.Repositories.Interfaces;
+using GymTracker.Infrastructure.Services.Interfaces;
 
 namespace GymTracker.Infrastructure.Services;
 
-public class ExerciseService
+public class ExerciseService : IExerciseService
 {
     private readonly IExerciseRepository _exerciseRepository;
     private readonly IWorkoutRepository _workoutRepository;

@@ -1,6 +1,6 @@
-<div class="background"></div>
-<div class="container">
-  <div class="content">
+
+<div class="container" >
+  <div class="content" @slideDown>
     <h2 class="logo"><i class="bx bxs-castle"></i> FitForge</h2>
     <div class="text-sci">
       <h2>Welcome to Your Fitness Tracker!</h2>
@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <div class="logreg-box" [class.active]="isRegisterActive">
+  <div class="logreg-box" [class.active]="isRegisterActive" @slideDownWithBlur>
     <div class="form-box login">
       <form [formGroup]="loginForm" (ngSubmit)="login()">
         <h2>Sign In</h2>

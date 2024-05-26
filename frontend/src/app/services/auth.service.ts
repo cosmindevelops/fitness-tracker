@@ -3,9 +3,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { LoginRequest } from '../models/LoginRequest';
-import { AuthResponse } from '../models/AuthResponse';
-import { RegisterRequest } from '../models/RegisterRequest';
+import { LoginRequest } from '../models/auth.models';
+import { AuthResponse } from '../models/auth.models';
+import { RegisterRequest } from '../models/auth.models';
 
 @Injectable({
   providedIn: 'root',

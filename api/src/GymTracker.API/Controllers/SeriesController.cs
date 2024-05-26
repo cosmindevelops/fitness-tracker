@@ -1,5 +1,5 @@
 ﻿using GymTracker.Infrastructure.Common;
-using GymTracker.Infrastructure.Services;
+using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +9,9 @@ namespace GymTracker.API.Controllers;
 [Route("api/workouts/{workoutId}/exercises/{exerciseId}/[controller]")]
 public class SeriesController : BaseController
 {
-    private readonly SeriesService _seriesService;
+    private readonly ISeriesService _seriesService;
 
-    public SeriesController(SeriesService seriesService)
+    public SeriesController(ISeriesService seriesService, ILogger<AuthController> logger) : base(logger)
     {
         _seriesService = seriesService;
     }

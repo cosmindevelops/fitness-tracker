@@ -1,6 +1,5 @@
-﻿using AutoMapper;
-using GymTracker.Infrastructure.Common;
-using GymTracker.Infrastructure.Services;
+﻿using GymTracker.Infrastructure.Common;
+using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +9,9 @@ namespace GymTracker.API.Controllers;
 [Route("api/workouts/{workoutId}/[controller]")]
 public class ExerciseController : BaseController
 {
-    private readonly ExerciseService _exerciseService;
+    private readonly IExerciseService _exerciseService;
 
-    public ExerciseController(ExerciseService exerciseService)
+    public ExerciseController(IExerciseService exerciseService, ILogger<AuthController> logger) : base(logger)
     {
         _exerciseService = exerciseService;
     }

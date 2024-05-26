@@ -5,6 +5,7 @@ using GymTracker.Infrastructure.Data;
 using GymTracker.Infrastructure.Repositories;
 using GymTracker.Infrastructure.Repositories.Interfaces;
 using GymTracker.Infrastructure.Services;
+using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -55,10 +56,11 @@ public class Program
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
         // Register services
-        builder.Services.AddScoped<ExerciseService>();
-        builder.Services.AddScoped<SeriesService>();
-        builder.Services.AddScoped<WorkoutService>();
-        builder.Services.AddScoped<AuthService>();
+        builder.Services.AddScoped<IExerciseService, ExerciseService>();
+        builder.Services.AddScoped<ISeriesService, SeriesService>();
+        builder.Services.AddScoped<IWorkoutService, WorkoutService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<JwtTokenService>();
         builder.Services.AddScoped<PasswordHasher>();
 

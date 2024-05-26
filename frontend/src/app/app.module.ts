@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -8,13 +7,14 @@ import { HomeComponent } from './pages/home/home.component';
 import { WorkoutComponent } from './pages/workout/workout.component';
 import { AuthComponent } from './pages/auth/auth.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JwtInterceptor } from './services/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { WorkoutListComponent } from './components/workout-list/workout-list.component';
 
 @NgModule({
-  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent],
+  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent, WorkoutListComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -22,6 +22,7 @@ import { ToastrModule } from 'ngx-toastr';
     ReactiveFormsModule,
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-bottom-center',

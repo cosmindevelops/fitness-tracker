@@ -7,10 +7,12 @@ namespace GymTracker.API.Exceptions;
 public class ErrorHandlingMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
-    public ErrorHandlingMiddleware(RequestDelegate next)
+    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task Invoke(HttpContext context)
@@ -21,6 +23,7 @@ public class ErrorHandlingMiddleware
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "An error occurred processing the request.");
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -33,20 +36,8 @@ public class ErrorHandlingMiddleware
         switch (exception)
         {
             case WorkoutNotFoundException:
-                code = HttpStatusCode.NotFound;
-                result = $"Error: {exception.Message}";
-                break;
-
             case UserNotFoundException:
-                code = HttpStatusCode.NotFound;
-                result = $"Error: {exception.Message}";
-                break;
-
             case ExerciseNotFoundException:
-                code = HttpStatusCode.NotFound;
-                result = $"Error: {exception.Message}";
-                break;
-
             case SeriesNotFoundException:
                 code = HttpStatusCode.NotFound;
                 result = $"Error: {exception.Message}";

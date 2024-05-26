@@ -3,9 +3,10 @@ using GymTracker.Infrastructure.Authentication;
 using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Repositories.Interfaces;
 using GymTracker.Infrastructure.Services;
+using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
-public class AuthService
+public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly JwtTokenService _jwtTokenService;
