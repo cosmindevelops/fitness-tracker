@@ -8,6 +8,8 @@ public interface IWorkoutRepository
 
     Task<Workout> GetWorkoutByIdAsync(Guid userId, Guid workoutId);
 
+    Task<IEnumerable<Workout>> GetWorkoutsByNameAsync(Guid userId, string name);
+
     Task<Workout> CreateWorkoutAsync(Workout workout);
 
     Task UpdateWorkoutAsync(Workout workout);

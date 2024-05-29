@@ -31,6 +31,13 @@ public class WorkoutRepository : IWorkoutRepository
                              .FirstOrDefaultAsync(w => w.Id == workoutId && w.UserId == userId);
     }
 
+    public async Task<IEnumerable<Workout>> GetWorkoutsByNameAsync(Guid userId, string name)
+    {
+        return await _context.Workouts
+            .Where(w => w.UserId == userId && w.Notes.Contains(name))
+            .ToListAsync();
+    }
+
     public async Task<Workout> CreateWorkoutAsync(Workout workout)
     {
         await _context.Workouts.AddAsync(workout);

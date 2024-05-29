@@ -1,0 +1,116 @@
+.workout-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.workout-card {
+  min-width: 600px;
+  max-height: 95px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(15px);
+  transition: max-height 1s ease;
+  overflow: hidden;
+}
+
+.workout-card:hover {
+  background: rgba(255, 255, 255, 0.7);
+  height: auto;
+  max-height: 600px;
+}
+
+.workout-card.expanded {
+    background: rgba(255, 255, 255, 0.7);
+    height: auto;
+    max-height: 600px;
+  }
+
+.workout-card .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.workout-card .header .title {
+  font-weight: bold;
+}
+.workout-card .header .options {
+  color: #007bff;
+  cursor: pointer;
+}
+.workout-card .details {
+  margin-top: 10px;
+}
+.workout-card .details .info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.workout-card .details .info i {
+  margin-right: 5px;
+}
+.workout-card .exercise {
+  margin-top: 10px;
+}
+.workout-card .exercise .row {
+  margin-bottom: 5px;
+}
+
+.exercise-description {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: -20px;
+  margin-top: 20px;
+}
+
+.exercise-description p {
+  font-weight: bold;
+}
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.options {
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 25px;
+  top: 0;
+  background-color: #333;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  padding: 12px 0;
+  border-radius: 8px;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item {
+  color: #fff;
+  padding: 8px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-item i {
+  margin-right: 8px;
+}
+
+.dropdown-item:hover {
+  background-color: #575757;
+}

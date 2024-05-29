@@ -1,7 +1,8 @@
-import { SeriesResponseDto } from './series.models';
+import { SeriesDto, SeriesResponseDto } from './series.models';
 
 export interface ExerciseDto {
   name: string;
+  series?: SeriesDto[];
 }
 
 export interface ExerciseResponseDto {

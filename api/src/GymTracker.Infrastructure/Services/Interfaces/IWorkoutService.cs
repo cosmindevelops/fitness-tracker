@@ -9,6 +9,8 @@ public interface IWorkoutService
 
     Task<WorkoutResponseDto> GetWorkoutByIdForUserAsync(Guid userId, Guid workoutId);
 
+    Task<IEnumerable<WorkoutResponseDto>> GetWorkoutsByNameAsync(Guid userId, string name);
+
     Task<WorkoutResponseDto> CreateWorkoutAsync(Guid userId, WorkoutCreateDto workoutDto);
 
     Task<Workout> UpdateWorkoutAsync(Guid userId, Guid workoutId, WorkoutUpdateDto workoutDto);

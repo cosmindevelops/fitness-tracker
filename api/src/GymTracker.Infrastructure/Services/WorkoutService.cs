@@ -41,6 +41,19 @@ public class WorkoutService : IWorkoutService
         return _mapper.Map<WorkoutResponseDto>(workout);
     }
 
+    public async Task<IEnumerable<WorkoutResponseDto>> GetWorkoutsByNameAsync(Guid userId, string name)
+    {
+        GuidValidator.Validate(userId);
+
+        var workouts = await _workoutRepository.GetWorkoutsByNameAsync(userId, name);
+        if (workouts == null)
+        {
+            return new List<WorkoutResponseDto>();
+        }
+
+        return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
+    }
+
     public async Task<WorkoutResponseDto> CreateWorkoutAsync(Guid userId, WorkoutCreateDto workoutDto)
     {
         GuidValidator.Validate(userId);

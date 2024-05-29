@@ -1,0 +1,57 @@
+<div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="workoutForm">
+        <div class="modal-header">
+          <button type="button" class="btn btn-light no-background" (click)="closeModal()"><i class="fas fa-times"></i></button>
+          <h4 class="modal-title" id="editWorkoutModalLabel">{{ workoutId ? 'Edit Workout' : 'Create Workout' }}</h4>
+          <button type="button" class="btn btn-primary" (click)="saveWorkout()">Save</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <input formControlName="workoutName" class="form-control workout-title" placeholder="Workout Name" [class.has-input]="workoutNameHasInput" />
+          </div>
+          <div class="scrollable-exercises-container">
+            <div formArrayName="exercises">
+              <div *ngFor="let exercise of exercises.controls; let i = index" [formGroupName]="i">
+                <div class="exercise">
+                  <input formControlName="exerciseName" class="form-control" placeholder="Exercise Name" [class.has-input]="exerciseNameHasInput" />
+                  <table class="exercise-table">
+                    <thead>
+                      <tr>
+                        <th class="set-column">Set</th>
+                        <th>Kg</th>
+                        <th>Reps</th>
+                        <th>RPE</th>
+                        <th><i class="fas fa-trash-alt" (click)="deleteExercise(i)" style="cursor: pointer"></i></th>
+                      </tr>
+                    </thead>
+                    <tbody formArrayName="sets">
+                      <tr *ngFor="let set of getSets(i).controls; let j = index" [formGroupName]="j">
+                        <td class="set-column">{{ j + 1 }}</td>
+                        <td><input formControlName="kg" class="form-control input-field" type="number" /></td>
+                        <td><input formControlName="reps" class="form-control input-field" type="number" /></td>
+                        <td><input formControlName="rpe" class="form-control input-field" type="number" /></td>
+                        <td><i class="fas fa-times" (click)="deleteSet(i, j)"></i></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="add-set" (click)="addSet(i)">+ Add Set</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="add-exercises" (click)="addExercise()">Add Exercise</div>
+          <div
+            class="delete-workout"
+            [ngClass]="{ disabled: exercises.length === 0 }"
+            (click)="exercises.length > 0 && deleteWorkout()"
+            [class.disabled]="exercises.length === 0"
+          >
+            Delete Workout
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

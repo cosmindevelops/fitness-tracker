@@ -1,9 +1,13 @@
-<div class="workout">
-  <main class="workout-content">
-    <h1 class="title">Get your workout</h1>
-    <div class="input-group justify-content-center">
-      <input type="text" placeholder="Search" class="search-workout-input" /> 
-      <button class="btn btn-primary hotel-btn">Get a list of workouts</button>
-    </div>
-  </main>
-</div>
+<main class="workout-content">
+  <h1 class="title">Get your workout</h1>
+  <div class="input-group justify-content-center">
+    <input type="text" #searchInput placeholder="Search" class="search-workout-input" />
+    <button class="btn btn-primary hotel-btn" (click)="getWorkouts()">Get a list of workouts</button>
+  </div>
+  <div class="text-center my-3">
+    <button class="btn btn-primary" (click)="handleCreateWorkout()">Create New Workout</button>
+  </div>
+  <div class="workout-list-container">
+    <app-workout-list [workouts]="workouts" (deleteWorkout)="handleDeleteWorkout($event)" (editWorkout)="handleEditWorkout($event)"></app-workout-list>
+  </div>
+</main>

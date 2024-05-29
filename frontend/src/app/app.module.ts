@@ -12,9 +12,11 @@ import { JwtInterceptor } from './services/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { WorkoutListComponent } from './components/workout-list/workout-list.component';
+import { WorkoutModalComponent } from './components/workout-modal/workout-modal.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
-  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent, WorkoutListComponent],
+  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent, WorkoutListComponent, WorkoutModalComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -23,6 +25,7 @@ import { WorkoutListComponent } from './components/workout-list/workout-list.com
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
+    NgbModule,
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-bottom-center',
@@ -32,6 +35,6 @@ import { WorkoutListComponent } from './components/workout-list/workout-list.com
     }),
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

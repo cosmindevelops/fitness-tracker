@@ -30,6 +30,13 @@ public class WorkoutController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> GetByName([FromQuery] string name)
+    {
+        var results = await _workoutService.GetWorkoutsByNameAsync(UserId, name);
+        return Ok(results);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] WorkoutCreateDto workoutDto)
     {

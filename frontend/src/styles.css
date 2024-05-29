@@ -25,7 +25,11 @@ body::before {
 }
 
 .toast-bottom-center {
-  bottom: 50px;
+  top: auto;
+  bottom: 12px;
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .toast-message {
