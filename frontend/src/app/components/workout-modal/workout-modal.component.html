@@ -1,19 +1,19 @@
 <div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form [formGroup]="workoutForm">
-        <div class="modal-header">
-          <button type="button" class="btn btn-light no-background" (click)="closeModal()"><i class="fas fa-times"></i></button>
-          <h4 class="modal-title" id="editWorkoutModalLabel">{{ workoutId ? 'Edit Workout' : 'Create Workout' }}</h4>
-          <button type="button" class="btn btn-primary" (click)="saveWorkout()">Save</button>
+  <div class="modal-dialog" >
+    <div class="modal-content" >
+      <form [formGroup]="workoutForm" >
+        <div class="modal-header" >
+          <button type="button" class="btn btn-light no-background" (click)="closeModal()" @slideDown><i class="fas fa-times"></i></button>
+          <h4 class="modal-title" id="editWorkoutModalLabel" @slideDown>{{ workoutId ? 'Edit Workout' : 'Create Workout' }}</h4>
+          <button type="button" class="btn btn-primary" (click)="saveWorkout()" @slideDown>Save</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" >
           <div class="form-group">
-            <input formControlName="workoutName" class="form-control workout-title" placeholder="Workout Name" [class.has-input]="workoutNameHasInput" />
+            <input formControlName="workoutName" class="form-control workout-title" placeholder="Workout Name" [class.has-input]="workoutNameHasInput" @slideDown/>
           </div>
           <div class="scrollable-exercises-container">
-            <div formArrayName="exercises">
-              <div *ngFor="let exercise of exercises.controls; let i = index" [formGroupName]="i">
+            <div formArrayName="exercises" >
+              <div *ngFor="let exercise of exercises.controls; let i = index" [formGroupName]="i" @slideDown>
                 <div class="exercise">
                   <input formControlName="exerciseName" class="form-control" placeholder="Exercise Name" [class.has-input]="exerciseNameHasInput" />
                   <table class="exercise-table">
@@ -27,7 +27,7 @@
                       </tr>
                     </thead>
                     <tbody formArrayName="sets">
-                      <tr *ngFor="let set of getSets(i).controls; let j = index" [formGroupName]="j">
+                      <tr *ngFor="let set of getSets(i).controls; let j = index" [formGroupName]="j" @slideDown>
                         <td class="set-column">{{ j + 1 }}</td>
                         <td><input formControlName="kg" class="form-control input-field" type="number" /></td>
                         <td><input formControlName="reps" class="form-control input-field" type="number" /></td>
@@ -36,17 +36,18 @@
                       </tr>
                     </tbody>
                   </table>
-                  <div class="add-set" (click)="addSet(i)">+ Add Set</div>
+                  <div class="add-set" (click)="addSet(i)" @slideDown>+ Add Set</div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="add-exercises" (click)="addExercise()">Add Exercise</div>
+          <div class="add-exercises" (click)="addExercise()" @slideDown>Add Exercise</div>
           <div
             class="delete-workout"
             [ngClass]="{ disabled: exercises.length === 0 }"
             (click)="exercises.length > 0 && deleteWorkout()"
             [class.disabled]="exercises.length === 0"
+            @slideDown
           >
             Delete Workout
           </div>

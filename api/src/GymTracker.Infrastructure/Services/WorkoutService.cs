@@ -22,12 +22,7 @@ public class WorkoutService : IWorkoutService
     {
         GuidValidator.Validate(userId);
 
-        var workouts = await _workoutRepository.GetAllWorkoutsAsync(userId);
-        if (workouts == null)
-        {
-            return new List<WorkoutResponseDto>();
-        }
-
+        var workouts = await _workoutRepository.GetAllWorkoutsAsync(userId) ?? new List<Workout>();
         return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
     }
 
@@ -45,12 +40,7 @@ public class WorkoutService : IWorkoutService
     {
         GuidValidator.Validate(userId);
 
-        var workouts = await _workoutRepository.GetWorkoutsByNameAsync(userId, name);
-        if (workouts == null)
-        {
-            return new List<WorkoutResponseDto>();
-        }
-
+        var workouts = await _workoutRepository.GetWorkoutsByNameAsync(userId, name) ?? new List<Workout>();
         return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
     }
 
@@ -64,7 +54,7 @@ public class WorkoutService : IWorkoutService
         return _mapper.Map<WorkoutResponseDto>(createdWorkout);
     }
 
-    public async Task<Workout> UpdateWorkoutAsync(Guid userId, Guid workoutId, WorkoutUpdateDto workoutDto)
+    public async Task<WorkoutResponseDto> UpdateWorkoutAsync(Guid userId, Guid workoutId, WorkoutUpdateDto workoutDto)
     {
         GuidValidator.Validate(userId, workoutId);
 
@@ -73,7 +63,7 @@ public class WorkoutService : IWorkoutService
 
         _mapper.Map(workoutDto, workout);
         await _workoutRepository.UpdateWorkoutAsync(workout);
-        return workout;
+        return _mapper.Map<WorkoutResponseDto>(workout);
     }
 
     public async Task DeleteWorkoutAsync(Guid userId, Guid workoutId)

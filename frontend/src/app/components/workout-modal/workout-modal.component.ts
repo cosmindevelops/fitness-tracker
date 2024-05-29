@@ -6,11 +6,13 @@ import { WorkoutService } from '../../services/workout.service';
 import { WorkoutDto, WorkoutResponseDto } from '../../models/workout.models';
 import { ExerciseDto } from '../../models/exercise.models';
 import { SeriesDto } from '../../models/series.models';
+import { slideDownAnimation } from '../../shared/animation';
 
 @Component({
   selector: 'app-workout-modal',
   templateUrl: './workout-modal.component.html',
   styleUrl: './workout-modal.component.css',
+  animations: [slideDownAnimation],
 })
 export class WorkoutModalComponent implements OnInit {
   workoutForm!: FormGroup;
@@ -39,7 +41,7 @@ export class WorkoutModalComponent implements OnInit {
       console.log(`Loading workout with ID: ${this.workoutId}`);
       this.loadWorkout(this.workoutId);
     } else {
-      this.addExercise(); // Add an initial empty exercise if creating a new workout
+      this.addExercise();
     }
 
     let workoutNameControl = this.workoutForm.get('workoutName');

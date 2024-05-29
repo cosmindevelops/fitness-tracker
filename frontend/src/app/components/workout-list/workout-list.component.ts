@@ -1,11 +1,13 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { WorkoutResponseDto } from '../../models/workout.models';
 import { SeriesDto } from '../../models/series.models';
+import { slideDownAnimation } from '../../shared/animation';
 
 @Component({
   selector: 'app-workout-list',
   templateUrl: './workout-list.component.html',
   styleUrl: './workout-list.component.css',
+  animations: [slideDownAnimation],
 })
 export class WorkoutListComponent {
   dropdownOpen: boolean[] = [];

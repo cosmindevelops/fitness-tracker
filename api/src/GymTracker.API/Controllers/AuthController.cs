@@ -19,18 +19,19 @@ public class AuthController : BaseController
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModelDto model)
     {
+        if (model == null)
+        {
+            Logger.LogError("Register model is null.");
+            return BadRequest("Invalid registration request.");
+        }
+
         var validationResult = ValidateModel(model);
         if (validationResult != null)
         {
             return validationResult;
         }
 
-        var (Success, UserId, Token) = await _authService.RegisterAsync(model);
-        if (!Success)
-        {
-            Logger.LogError("Attempt to register user failed: User already exists.");
-            return BadRequest("User already exists.");
-        }
+        await _authService.RegisterAsync(model);
 
         Logger.LogInformation("User registered successfully.");
         return Ok();
@@ -52,14 +53,9 @@ public class AuthController : BaseController
             return validationResult;
         }
 
-        var (Success, UserId, Token) = await _authService.LoginAsync(model);
-        if (!Success)
-        {
-            Logger.LogError("Login attempt failed: Invalid username or password.");
-            return Unauthorized("Invalid username or password.");
-        }
+        var result = await _authService.LoginAsync(model);
 
         Logger.LogInformation("User logged in successfully.");
-        return Ok(new AuthResponseDto { UserId = Guid.Parse(UserId), Token = Token });
+        return Ok(new AuthResponseDto { UserId = result.UserId, Token = result.Token });
     }
 }

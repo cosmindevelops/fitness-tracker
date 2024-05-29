@@ -12,18 +12,29 @@ import { WorkoutModalComponent } from '../../components/workout-modal/workout-mo
   styleUrl: './workout.component.css',
   animations: [slideDownAnimation],
 })
-export class WorkoutComponent implements OnInit {
+export class WorkoutComponent implements OnInit, AfterViewInit {
+
   workouts: WorkoutResponseDto[] = [];
+  showScrollIndicator: boolean = false;
+  scrollTimeout: any;
 
   @ViewChild('searchInput') searchInput!: ElementRef;
-  
-  constructor(
-    private workoutService: WorkoutService,
-    private modalService: NgbModal,
-    private notificationService: NotificationService
-  ) {}
+  @ViewChild('workoutListContainer') workoutListContainer!: ElementRef;
+
+  constructor(private workoutService: WorkoutService, private modalService: NgbModal, private notificationService: NotificationService) {}
 
   ngOnInit(): void {
+    
+  }
+
+  ngAfterViewInit(): void {
+    this.checkScrollIndicator();
+    this.workoutListContainer.nativeElement.addEventListener('scroll', () => {
+      clearTimeout(this.scrollTimeout);
+      this.checkScrollIndicator();
+      this.hideScrollIndicatorWithDelay();
+    });
+    this.hideScrollIndicatorWithDelay();
   }
 
   getWorkouts(): void {
@@ -67,7 +78,7 @@ export class WorkoutComponent implements OnInit {
   handleCreateWorkout(): void {
     console.log('Opening modal to create a new workout');
     const modalRef = this.modalService.open(WorkoutModalComponent);
-  
+
     modalRef.result.then(
       () => {
         console.log('Modal closed, refreshing workouts');
@@ -78,12 +89,12 @@ export class WorkoutComponent implements OnInit {
       }
     );
   }
-  
+
   handleEditWorkout(workoutId: string): void {
     console.log(`Opening modal to edit workout with ID: ${workoutId}`);
     const modalRef = this.modalService.open(WorkoutModalComponent);
     modalRef.componentInstance.workoutId = workoutId;
-  
+
     modalRef.result.then(
       () => {
         console.log('Modal closed, refreshing workouts');
@@ -93,5 +104,16 @@ export class WorkoutComponent implements OnInit {
         console.log('Modal dismissed');
       }
     );
+  }
+
+  checkScrollIndicator(): void {
+    const element = this.workoutListContainer.nativeElement;
+    this.showScrollIndicator = element.scrollHeight > element.clientHeight && element.scrollTop + element.clientHeight < element.scrollHeight;
+  }
+
+  hideScrollIndicatorWithDelay(): void {
+    this.scrollTimeout = setTimeout(() => {
+      this.showScrollIndicator = false;
+    }, 1500);
   }
 }

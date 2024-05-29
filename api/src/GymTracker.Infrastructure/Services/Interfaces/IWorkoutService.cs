@@ -1,5 +1,4 @@
-﻿using GymTracker.Core.Entities;
-using GymTracker.Infrastructure.Common;
+﻿using GymTracker.Infrastructure.Common;
 
 namespace GymTracker.Infrastructure.Services.Interfaces;
 
@@ -13,7 +12,7 @@ public interface IWorkoutService
 
     Task<WorkoutResponseDto> CreateWorkoutAsync(Guid userId, WorkoutCreateDto workoutDto);
 
-    Task<Workout> UpdateWorkoutAsync(Guid userId, Guid workoutId, WorkoutUpdateDto workoutDto);
+    Task<WorkoutResponseDto> UpdateWorkoutAsync(Guid userId, Guid workoutId, WorkoutUpdateDto workoutDto);
 
     Task DeleteWorkoutAsync(Guid userId, Guid workoutId);
 }

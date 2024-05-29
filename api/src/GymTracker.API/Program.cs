@@ -1,4 +1,5 @@
 ﻿using GymTracker.API.Exceptions;
+using GymTracker.Core.Entities;
 using GymTracker.Infrastructure.Authentication;
 using GymTracker.Infrastructure.Common.Mapping;
 using GymTracker.Infrastructure.Data;
@@ -7,6 +8,7 @@ using GymTracker.Infrastructure.Repositories.Interfaces;
 using GymTracker.Infrastructure.Services;
 using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -20,17 +22,38 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Configure Serilog
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .WriteTo.File("logs/myapp.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        // Add services to the DI container
+        ConfigureServices(builder.Services, builder.Configuration);
+
+        builder.Host.UseSerilog();
+
+        var app = builder.Build();
+
+        // Seed the database
+        SeedDatabase(app);
+
+        // Configure the HTTP request pipeline
+        ConfigureMiddleware(app);
+
+        app.Run();
+    }
+
+    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    {
+        // Add DbContext
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
             b => b.MigrationsAssembly("GymTracker.Infrastructure")));
 
-        var jwtSection = builder.Configuration.GetSection("Jwt");
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        // Configure JWT authentication
+        var jwtSection = configuration.GetSection("Jwt");
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -44,60 +67,67 @@ public class Program
                 };
             });
 
-        builder.Services.AddControllers();
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        // Add controllers
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
 
         // Register repositories
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
-        builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
-        builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
-        builder.Services.AddAutoMapper(typeof(MappingProfile));
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IWorkoutRepository, WorkoutRepository>();
+        services.AddScoped<IExerciseRepository, ExerciseRepository>();
+        services.AddScoped<ISeriesRepository, SeriesRepository>();
+
+        // Add AutoMapper
+        services.AddAutoMapper(typeof(MappingProfile));
 
         // Register services
-        builder.Services.AddScoped<IExerciseService, ExerciseService>();
-        builder.Services.AddScoped<ISeriesService, SeriesService>();
-        builder.Services.AddScoped<IWorkoutService, WorkoutService>();
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<JwtTokenService>();
-        builder.Services.AddScoped<PasswordHasher>();
+        services.AddScoped<IExerciseService, ExerciseService>();
+        services.AddScoped<ISeriesService, SeriesService>();
+        services.AddScoped<IWorkoutService, WorkoutService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
 
-        builder.Host.UseSerilog();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+    }
 
-        var app = builder.Build();
-
-        using (var scope = app.Services.CreateScope())
+    private static void SeedDatabase(IHost app)
+    {
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        try
         {
-            var services = scope.ServiceProvider;
-            try
-            {
-                var context = services.GetRequiredService<ApplicationDbContext>();
-                ApplicationDbContext.SeedRoles(context);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while seeding the database: {ex.Message}");
-            }
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            ApplicationDbContext.SeedRoles(context);
         }
-
-        if (app.Environment.IsDevelopment())
+        catch (Exception ex)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while seeding the database.");
         }
+    }
+
+    private static void ConfigureMiddleware(WebApplication app)
+    {
+        //if (app.Environment.IsDevelopment())
+        //{
+        //    app.UseSwagger();
+        //    app.UseSwaggerUI();
+        //}
 
         app.UseHttpsRedirection();
+
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
+
         app.UseMiddleware<ErrorHandlingMiddleware>();
+
         app.UseCors(builder => builder
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 
-        app.Run();
+        app.MapControllers();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using GymTracker.Infrastructure.Common.Exceptions;
 using GymTracker.Infrastructure.Exceptions;
 using System.Net;
+using System.Text.Json;
 
 namespace GymTracker.API.Exceptions;
 
@@ -35,21 +36,32 @@ public class ErrorHandlingMiddleware
 
         switch (exception)
         {
-            case WorkoutNotFoundException:
-            case UserNotFoundException:
-            case ExerciseNotFoundException:
-            case SeriesNotFoundException:
-                code = HttpStatusCode.NotFound;
-                result = $"Error: {exception.Message}";
+            case WorkoutNotFoundException _:
+            case UserNotFoundException _:
+            case ExerciseNotFoundException _:
+            case SeriesNotFoundException _:
+                code = HttpStatusCode.NotFound; // 404
+                result = JsonSerializer.Serialize(new { error = exception.Message });
                 break;
 
-            case UnauthorizedAccessException:
-                code = HttpStatusCode.Unauthorized;
-                result = $"Error: {exception.Message}";
+            case UnauthorizedAccessException _:
+                code = HttpStatusCode.Unauthorized; // 401
+                result = JsonSerializer.Serialize(new { error = exception.Message });
+                break;
+
+            case UserAlreadyExistsException _:
+                code = HttpStatusCode.Conflict; // 409
+                result = JsonSerializer.Serialize(new { error = exception.Message });
+                break;
+
+            case InvalidCredentialsException _:
+                code = HttpStatusCode.Unauthorized; // 401
+                result = JsonSerializer.Serialize(new { error = exception.Message });
                 break;
 
             default:
-                result = "An unexpected error has occurred.";
+                code = HttpStatusCode.InternalServerError; // 500
+                result = JsonSerializer.Serialize(new { error = "An unexpected error has occurred." });
                 break;
         }
 

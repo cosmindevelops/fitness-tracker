@@ -1,30 +1,30 @@
 ﻿using GymTracker.Core.Entities;
-using GymTracker.Infrastructure.Authentication;
 using GymTracker.Infrastructure.Common;
+using GymTracker.Infrastructure.Common.Exceptions;
 using GymTracker.Infrastructure.Repositories.Interfaces;
-using GymTracker.Infrastructure.Services;
 using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+
+namespace GymTracker.Infrastructure.Services;
 
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
-    private readonly JwtTokenService _jwtTokenService;
-    private readonly PasswordHasher _passwordHasher;
+    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IPasswordHasher<User> _passwordHasher;
 
-    public AuthService(IUserRepository userRepository, JwtTokenService jwtTokenService, PasswordHasher passwordHasher)
+    public AuthService(IUserRepository userRepository, IJwtTokenService jwtTokenService, IPasswordHasher<User> passwordHasher)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<(bool Success, string UserId, string Token)> RegisterAsync(RegisterModelDto model)
+    public async Task RegisterAsync(RegisterModelDto model)
     {
-        var userExists = await _userRepository.UserExistsAsync(model.Username, model.Email);
-        if (userExists)
+        if (await _userRepository.UserExistsAsync(model.Username, model.Email))
         {
-            return (false, null, null);
+            throw new UserAlreadyExistsException("User already exists.");
         }
 
         var user = new User
@@ -35,33 +35,26 @@ public class AuthService : IAuthService
             PasswordHash = _passwordHasher.HashPassword(null, model.Password)
         };
 
-        user = await _userRepository.RegisterUserAsync(user, "User");
-
-        var roles = await _userRepository.GetUserRolesAsync(user);
-
-        var token = _jwtTokenService.GenerateToken(user, roles);
-
-        return (true, user.Id.ToString(), token);
+        await _userRepository.RegisterUserAsync(user, "User");
     }
 
-    public async Task<(bool Success, string UserId, string Token)> LoginAsync(LoginModelDto model)
+    public async Task<AuthResponseDto> LoginAsync(LoginModelDto model)
     {
         var user = await _userRepository.FindByEmailAsync(model.Email);
-
         if (user == null)
         {
-            return (false, null, null);
+            throw new InvalidCredentialsException("Invalid email or password.");
         }
 
-        var verificationResult = _passwordHasher.VerifyPassword(user, model.Password, user.PasswordHash);
+        var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
         if (verificationResult != PasswordVerificationResult.Success)
         {
-            return (false, null, null);
+            throw new InvalidCredentialsException("Invalid email or password.");
         }
 
         var roles = await _userRepository.GetUserRolesAsync(user);
 
         var token = _jwtTokenService.GenerateToken(user, roles);
-        return (true, user.Id.ToString(), token);
+        return new AuthResponseDto { UserId = user.Id, Token = token };
     }
 }

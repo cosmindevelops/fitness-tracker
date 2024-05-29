@@ -4,7 +4,7 @@ namespace GymTracker.Infrastructure.Services.Interfaces;
 
 public interface IAuthService
 {
-    Task<(bool Success, string UserId, string Token)> RegisterAsync(RegisterModelDto model);
+    Task RegisterAsync(RegisterModelDto model);
 
-    Task<(bool Success, string UserId, string Token)> LoginAsync(LoginModelDto model);
+    Task<AuthResponseDto> LoginAsync(LoginModelDto model);
 }

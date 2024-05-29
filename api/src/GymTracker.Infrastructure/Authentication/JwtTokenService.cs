@@ -1,4 +1,5 @@
 ﻿using GymTracker.Core.Entities;
+using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace GymTracker.Infrastructure.Authentication;
 
-public class JwtTokenService
+public class JwtTokenService : IJwtTokenService
 {
     private readonly string _secretKey;
     private readonly string _issuer;
@@ -15,13 +16,16 @@ public class JwtTokenService
 
     public JwtTokenService(IConfiguration configuration)
     {
-        _secretKey = configuration["Jwt:Secret"];
-        _issuer = configuration["Jwt:Issuer"];
-        _audience = configuration["Jwt:Audience"];
+        _secretKey = configuration["Jwt:Secret"] ?? throw new ArgumentNullException(nameof(configuration), "Jwt:Secret is not configured.");
+        _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException(nameof(configuration), "Jwt:Issuer is not configured.");
+        _audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException(nameof(configuration), "Jwt:Audience is not configured.");
     }
 
     public string GenerateToken(User user, List<string> roles)
     {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (roles == null) throw new ArgumentNullException(nameof(roles));
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_secretKey);
         var claims = new List<Claim>

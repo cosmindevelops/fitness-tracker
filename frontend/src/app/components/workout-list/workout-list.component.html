@@ -1,6 +1,6 @@
 <div class="workout-list">
   <main class="workout-list-content">
-    <div *ngFor="let workout of workouts; let i = index" class="workout-card" (click)="expandCard($event)">
+    <div *ngFor="let workout of workouts; let i = index" class="workout-card" (click)="expandCard($event)" @slideDown>
       <div class="header">
         <div class="title">{{ workout.notes }}</div>
         <div class="dropdown" (clickOutside)="closeDropdown(i)">
@@ -18,8 +18,8 @@
         <p>Exercise</p>
         <p>Sets</p>
       </div>
-      <div class="exercise" *ngFor="let exercise of workout.exercises">
-        <div class="row">
+      <div class="exercise" *ngFor="let exercise of workout.exercises" >
+        <div class="row" >
           <div class="col-6">{{ exercise.name }}</div>
           <div class="col-6 text-end">{{ exercise.series.length }} x {{ getRepRange(exercise.series) }}</div>
         </div>
