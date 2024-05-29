@@ -12,7 +12,7 @@ public class AuthController : BaseController
 
     public AuthController(IAuthService authService, ILogger<AuthController> logger) : base(logger)
     {
-        _authService = authService;
+        _authService = authService ?? throw new ArgumentNullException(nameof(authService));
     }
 
     [AllowAnonymous]
@@ -34,7 +34,7 @@ public class AuthController : BaseController
         await _authService.RegisterAsync(model);
 
         Logger.LogInformation("User registered successfully.");
-        return Ok();
+        return Ok(new { Message = "User registered successfully." });
     }
 
     [AllowAnonymous]

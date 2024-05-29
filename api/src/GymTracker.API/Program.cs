@@ -2,6 +2,8 @@
 using GymTracker.Core.Entities;
 using GymTracker.Infrastructure.Authentication;
 using GymTracker.Infrastructure.Common.Mapping;
+using GymTracker.Infrastructure.Common.Utility;
+using GymTracker.Infrastructure.Common.Utility.Interfaces;
 using GymTracker.Infrastructure.Data;
 using GymTracker.Infrastructure.Repositories;
 using GymTracker.Infrastructure.Repositories.Interfaces;
@@ -90,6 +92,8 @@ public class Program
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        services.AddScoped<IGuidValidator, GuidValidator>();
+        services.AddScoped<IEntityValidator, EntityValidator>();
     }
 
     private static void SeedDatabase(IHost app)
@@ -99,7 +103,8 @@ public class Program
         try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            ApplicationDbContext.SeedRoles(context);
+            var logger = services.GetRequiredService<ILogger<ApplicationDbContext>>();
+            ApplicationDbContext.SeedRoles(context, logger);
         }
         catch (Exception ex)
         {
@@ -110,11 +115,11 @@ public class Program
 
     private static void ConfigureMiddleware(WebApplication app)
     {
-        //if (app.Environment.IsDevelopment())
-        //{
-        //    app.UseSwagger();
-        //    app.UseSwaggerUI();
-        //}
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
 
         app.UseHttpsRedirection();
 

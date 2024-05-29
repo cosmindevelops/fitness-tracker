@@ -9,7 +9,7 @@ public abstract class BaseController : ControllerBase
 
     protected BaseController(ILogger logger)
     {
-        Logger = logger;
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     protected IActionResult ValidateModel(object model)
@@ -17,8 +17,9 @@ public abstract class BaseController : ControllerBase
         if (!TryValidateModel(model))
         {
             var errorMessages = ModelState.Values.SelectMany(val => val.Errors)
-                                                .Select(err => err.ErrorMessage)
-                                                .ToList();
+                                                 .Select(err => err.ErrorMessage)
+                                                 .ToList();
+            Logger.LogWarning("Model validation failed: {Errors}", string.Join(", ", errorMessages));
             return BadRequest(new { Errors = errorMessages });
         }
 

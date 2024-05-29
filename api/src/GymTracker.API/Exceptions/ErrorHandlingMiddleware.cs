@@ -12,8 +12,8 @@ public class ErrorHandlingMiddleware
 
     public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
     {
-        _next = next;
-        _logger = logger;
+        _next = next ?? throw new ArgumentNullException(nameof(next));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task Invoke(HttpContext context)

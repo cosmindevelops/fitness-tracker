@@ -11,14 +11,15 @@ public class WorkoutController : BaseController
 {
     private readonly IWorkoutService _workoutService;
 
-    public WorkoutController(IWorkoutService workoutService, ILogger<AuthController> logger) : base(logger)
+    public WorkoutController(IWorkoutService workoutService, ILogger<WorkoutController> logger) : base(logger)
     {
-        _workoutService = workoutService;
+        _workoutService = workoutService ?? throw new ArgumentNullException(nameof(workoutService));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
+        Logger.LogInformation("Getting all workouts for user {UserId}", UserId);
         var results = await _workoutService.GetAllWorkoutsForUserAsync(UserId);
         return Ok(results);
     }
@@ -26,6 +27,7 @@ public class WorkoutController : BaseController
     [HttpGet("{workoutId}")]
     public async Task<IActionResult> GetById(Guid workoutId)
     {
+        Logger.LogInformation("Getting workout {WorkoutId} for user {UserId}", workoutId, UserId);
         var result = await _workoutService.GetWorkoutByIdForUserAsync(UserId, workoutId);
         return Ok(result);
     }
@@ -33,6 +35,7 @@ public class WorkoutController : BaseController
     [HttpGet("search")]
     public async Task<IActionResult> GetByName([FromQuery] string name)
     {
+        Logger.LogInformation("Searching workouts by name {Name} for user {UserId}", name, UserId);
         var results = await _workoutService.GetWorkoutsByNameAsync(UserId, name);
         return Ok(results);
     }
@@ -40,6 +43,7 @@ public class WorkoutController : BaseController
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] WorkoutCreateDto workoutDto)
     {
+        Logger.LogInformation("Creating workout for user {UserId}", UserId);
         var result = await _workoutService.CreateWorkoutAsync(UserId, workoutDto);
         return CreatedAtAction(nameof(GetById), new { workoutId = result.Id }, result);
     }
@@ -47,6 +51,7 @@ public class WorkoutController : BaseController
     [HttpPut("{workoutId}")]
     public async Task<IActionResult> Update(Guid workoutId, [FromBody] WorkoutUpdateDto workoutDto)
     {
+        Logger.LogInformation("Updating workout {WorkoutId} for user {UserId}", workoutId, UserId);
         await _workoutService.UpdateWorkoutAsync(UserId, workoutId, workoutDto);
         return NoContent();
     }
@@ -54,6 +59,7 @@ public class WorkoutController : BaseController
     [HttpDelete("{workoutId}")]
     public async Task<IActionResult> Delete(Guid workoutId)
     {
+        Logger.LogInformation("Deleting workout {WorkoutId} for user {UserId}", workoutId, UserId);
         await _workoutService.DeleteWorkoutAsync(UserId, workoutId);
         return NoContent();
     }
