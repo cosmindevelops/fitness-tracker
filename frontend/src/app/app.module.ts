@@ -14,9 +14,10 @@ import { ToastrModule } from 'ngx-toastr';
 import { WorkoutListComponent } from './components/workout-list/workout-list.component';
 import { WorkoutModalComponent } from './components/workout-modal/workout-modal.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { WorkoutModalDetailsComponent } from './components/workout-modal-details/workout-modal-details.component';
 
 @NgModule({
-  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent, WorkoutListComponent, WorkoutModalComponent],
+  declarations: [AppComponent, NavbarComponent, HomeComponent, WorkoutComponent, AuthComponent, WorkoutListComponent, WorkoutModalComponent, WorkoutModalDetailsComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

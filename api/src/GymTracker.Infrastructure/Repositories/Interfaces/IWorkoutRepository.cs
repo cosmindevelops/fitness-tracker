@@ -10,6 +10,8 @@ public interface IWorkoutRepository
 
     Task<IEnumerable<Workout>> GetWorkoutsByNameAsync(Guid userId, string name);
 
+    Task<IEnumerable<Workout>> SearchWorkoutsAsync(Guid userId, string name, DateTime? date);
+
     Task<Workout> CreateWorkoutAsync(Workout workout);
 
     Task UpdateWorkoutAsync(Workout workout);

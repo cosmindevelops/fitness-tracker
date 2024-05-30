@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkoutDto, WorkoutResponseDto } from '../models/workout.models';
@@ -19,8 +19,15 @@ export class WorkoutService {
     return this.http.get<WorkoutResponseDto>(`${this.apiUrl}/${workoutId}`);
   }
 
-  getWorkoutsByName(name: string): Observable<WorkoutResponseDto[]> {
-    return this.http.get<WorkoutResponseDto[]>(`${this.apiUrl}/search?name=${name}`);
+  getWorkouts(name: string, date: string): Observable<WorkoutResponseDto[]> {
+    let params = new HttpParams();
+    if (name) {
+      params = params.set('name', name);
+    }
+    if (date) {
+      params = params.set('date', date);
+    }
+    return this.http.get<WorkoutResponseDto[]>(`${this.apiUrl}/search`, { params });
   }
 
   createWorkout(workoutDto: WorkoutDto): Observable<WorkoutResponseDto> {

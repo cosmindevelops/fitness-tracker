@@ -8,8 +8,6 @@ GymTracker is a web application designed to help fitness enthusiasts track their
 - [Tech Stack](#tech-stack)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 

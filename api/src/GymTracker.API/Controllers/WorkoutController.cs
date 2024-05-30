@@ -33,10 +33,10 @@ public class WorkoutController : BaseController
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> GetByName([FromQuery] string name)
+    public async Task<IActionResult> SearchWorkouts([FromQuery] string name, [FromQuery] DateTime? date)
     {
-        Logger.LogInformation("Searching workouts by name {Name} for user {UserId}", name, UserId);
-        var results = await _workoutService.GetWorkoutsByNameAsync(UserId, name);
+        Logger.LogInformation("Searching workouts by name {Name} and date {Date} for user {UserId}", name, date, UserId);
+        var results = await _workoutService.SearchWorkoutsAsync(UserId, name, date);
         return Ok(results);
     }
 

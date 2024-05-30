@@ -7,6 +7,13 @@
   border-radius: 10px;
 }
 
+.table-indicator {
+  display: contents;
+  background-color: red;
+  height: 20px;
+  width: 20px;
+}
+
 .form-control {
   border: 1px solid #555;
   background-color: #3a3a3a;
@@ -46,7 +53,7 @@
 }
 
 td {
-  width: 100px; /* Adjust this value to your liking */
+  width: 100px;
 }
 
 .input-field {
@@ -83,7 +90,7 @@ input[type='number'] {
 }
 
 .modal-header button:hover {
-  background-color: #0056b3;
+  background-color: grey;
 }
 
 .workout-title {
@@ -92,6 +99,9 @@ input[type='number'] {
   margin-bottom: 10px;
   font-size: 30px;
   color: #ffffff;
+  opacity: 1;
+  font-weight: bold;
+  width: 100%;
 }
 
 .workout-title::placeholder,

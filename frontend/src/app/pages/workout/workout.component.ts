@@ -5,6 +5,7 @@ import { WorkoutService } from '../../services/workout.service';
 import { NotificationService } from '../../services/notification.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { WorkoutModalComponent } from '../../components/workout-modal/workout-modal.component';
+import { WorkoutModalDetailsComponent } from '../../components/workout-modal-details/workout-modal-details.component';
 
 @Component({
   selector: 'app-workout',
@@ -13,19 +14,18 @@ import { WorkoutModalComponent } from '../../components/workout-modal/workout-mo
   animations: [slideDownAnimation],
 })
 export class WorkoutComponent implements OnInit, AfterViewInit {
-
   workouts: WorkoutResponseDto[] = [];
   showScrollIndicator: boolean = false;
+  searchByDate: boolean = false;
   scrollTimeout: any;
 
   @ViewChild('searchInput') searchInput!: ElementRef;
+  @ViewChild('dateInput') dateInput!: ElementRef;
   @ViewChild('workoutListContainer') workoutListContainer!: ElementRef;
 
   constructor(private workoutService: WorkoutService, private modalService: NgbModal, private notificationService: NotificationService) {}
 
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.checkScrollIndicator();
@@ -39,8 +39,10 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
 
   getWorkouts(): void {
     const searchValue = this.searchInput.nativeElement.value;
-    if (searchValue) {
-      this.workoutService.getWorkoutsByName(searchValue).subscribe(
+    const dateValue = this.searchByDate ? this.dateInput.nativeElement.value : '';
+
+    if (searchValue || dateValue) {
+      this.workoutService.getWorkouts(searchValue, dateValue).subscribe(
         (data: WorkoutResponseDto[]) => {
           this.workouts = data;
         },
@@ -104,6 +106,19 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
         console.log('Modal dismissed');
       }
     );
+  }
+
+  showWorkoutDetails(workout: WorkoutResponseDto): void {
+    console.log('Workout details requested:', workout);
+    const modalRef = this.modalService.open(WorkoutModalDetailsComponent, {
+      backdrop: true,
+      keyboard: true,
+      centered: true,
+    });
+
+    modalRef.componentInstance.workout = workout;
+
+    modalRef.result.catch(() => {});
   }
 
   checkScrollIndicator(): void {

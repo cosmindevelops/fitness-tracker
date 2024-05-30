@@ -16,13 +16,6 @@ public class WorkoutService : IWorkoutService
     private readonly IGuidValidator _guidValidator;
     private readonly IEntityValidator _entityValidator;
 
-    public WorkoutService(IWorkoutRepository workoutRepository, IMapper mapper, ILogger<WorkoutService> logger)
-    {
-        _workoutRepository = workoutRepository ?? throw new ArgumentNullException(nameof(workoutRepository));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     public WorkoutService(IWorkoutRepository workoutRepository, IMapper mapper, ILogger<WorkoutService> logger, IGuidValidator guidValidator, IEntityValidator entityValidator)
     {
         _workoutRepository = workoutRepository ?? throw new ArgumentNullException(nameof(workoutRepository));
@@ -61,6 +54,16 @@ public class WorkoutService : IWorkoutService
         _logger.LogInformation("Getting workouts by name {Name} for user {UserId}", name, userId);
 
         var workouts = await _workoutRepository.GetWorkoutsByNameAsync(userId, name) ?? new List<Workout>();
+        return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
+    }
+
+    public async Task<IEnumerable<WorkoutResponseDto>> SearchWorkoutsAsync(Guid userId, string name, DateTime? date)
+    {
+        _guidValidator.Validate(userId);
+
+        _logger.LogInformation("Searching workouts by name {Name} and date {Date} for user {UserId}", name, date, userId);
+
+        var workouts = await _workoutRepository.SearchWorkoutsAsync(userId, name, date) ?? new List<Workout>();
         return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
     }
 

@@ -1,14 +1,29 @@
 <main class="workout-content">
   <div class="workout-container" @slideDown>
     <h1 class="title">Recent Workouts</h1>
+
     <div class="input-group">
       <input type="text" #searchInput placeholder="Search" class="search-workout-input" />
       <button class="btn btn-primary workout-btn" (click)="getWorkouts()">Get workouts</button>
     </div>
-    <div class="workout-list-container" #workoutListContainer>
-      <app-workout-list [workouts]="workouts" (deleteWorkout)="handleDeleteWorkout($event)" (editWorkout)="handleEditWorkout($event)"></app-workout-list>
-      <div class="scroll-indicator" *ngIf="showScrollIndicator">
-        <i class="fas fa-arrow-down"></i>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="dateToggle" [(ngModel)]="searchByDate" />
+      <label class="form-check-label" for="dateToggle">Filter by date</label>
+    </div>
+    <div class="parent-container">
+      <div *ngIf="searchByDate">
+        <input type="date" #dateInput class="form-control" />
+      </div>
+      <div class="workout-list-container" #workoutListContainer>
+        <app-workout-list
+          [workouts]="workouts"
+          (deleteWorkout)="handleDeleteWorkout($event)"
+          (editWorkout)="handleEditWorkout($event)"
+          (viewWorkoutDetails)="showWorkoutDetails($event)"
+        ></app-workout-list>
+        <div class="scroll-indicator" *ngIf="showScrollIndicator">
+          <i class="fas fa-arrow-down"></i>
+        </div>
       </div>
     </div>
   </div>

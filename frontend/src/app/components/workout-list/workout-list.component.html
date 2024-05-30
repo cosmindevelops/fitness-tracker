@@ -1,13 +1,17 @@
 <div class="workout-list">
   <main class="workout-list-content">
-    <div *ngFor="let workout of workouts; let i = index" class="workout-card" (click)="expandCard($event)" @slideDown>
+    <div *ngFor="let workout of workouts; let i = index" class="workout-card" @slideDown (click)="onViewDetails(workout)">
       <div class="header">
         <div class="title">{{ workout.notes }}</div>
         <div class="dropdown" (clickOutside)="closeDropdown(i)">
-          <i class="fas fa-ellipsis-h options" (click)="toggleDropdown(i)"></i>
-          <div class="dropdown-menu" [class.show]="dropdownOpen[i]">
-            <a class="dropdown-item" (click)="editWorkout.emit(workout.id)"><i class="fas fa-edit" style="color: rgb(150, 211, 247);"></i> Edit Workout</a>
-            <a class="dropdown-item delete" (click)="deleteWorkout.emit(workout.id)"><i class="fas fa-trash" style="color: red;"></i> Delete</a>
+          <i class="fas fa-ellipsis-h options" (click)="toggleDropdown(i); $event.stopPropagation()"></i>
+          <div class="dropdown-menu" [class.show]="dropdownOpen[i]" (click)="$event.stopPropagation()">
+            <a class="dropdown-item" (click)="editWorkout.emit(workout.id); $event.stopPropagation()">
+              <i class="fas fa-edit" style="color: rgb(150, 211, 247);"></i> Edit Workout
+            </a>
+            <a class="dropdown-item delete" (click)="deleteWorkout.emit(workout.id); $event.stopPropagation()">
+              <i class="fas fa-trash" style="color: red;"></i> Delete
+            </a>
           </div>
         </div>
       </div>
@@ -18,8 +22,8 @@
         <p>Exercise</p>
         <p>Sets</p>
       </div>
-      <div class="exercise" *ngFor="let exercise of workout.exercises" >
-        <div class="row" >
+      <div class="exercise" *ngFor="let exercise of workout.exercises">
+        <div class="row">
           <div class="col-6">{{ exercise.name }}</div>
           <div class="col-6 text-end">{{ exercise.series.length }} x {{ getRepRange(exercise.series) }}</div>
         </div>

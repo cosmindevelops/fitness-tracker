@@ -24,6 +24,7 @@ public class WorkoutRepository : IWorkoutRepository
                              .Include(w => w.Exercises)
                              .ThenInclude(e => e.Series)
                              .Where(w => w.UserId == userId)
+                             .OrderByDescending(w => w.Date)
                              .ToListAsync();
     }
 
@@ -42,6 +43,29 @@ public class WorkoutRepository : IWorkoutRepository
         return await _context.Workouts
                              .Where(w => w.UserId == userId && w.Notes.Contains(name))
                              .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Workout>> SearchWorkoutsAsync(Guid userId, string name, DateTime? date)
+    {
+        _logger.LogInformation("Searching workouts by name {Name} and date {Date} for user {UserId}", name, date, userId);
+
+        var query = _context.Workouts
+                            .Include(w => w.Exercises)
+                            .ThenInclude(e => e.Series)
+                            .Where(w => w.UserId == userId)
+                            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            query = query.Where(w => w.Notes.Contains(name));
+        }
+
+        if (date.HasValue)
+        {
+            query = query.Where(w => w.Date.Date == date.Value.Date);
+        }
+
+        return await query.ToListAsync();
     }
 
     public async Task<Workout> CreateWorkoutAsync(Workout workout)

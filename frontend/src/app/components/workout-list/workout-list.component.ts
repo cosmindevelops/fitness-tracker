@@ -2,6 +2,9 @@ import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from
 import { WorkoutResponseDto } from '../../models/workout.models';
 import { SeriesDto } from '../../models/series.models';
 import { slideDownAnimation } from '../../shared/animation';
+import { Subject, debounceTime } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { WorkoutModalDetailsComponent } from '../workout-modal-details/workout-modal-details.component';
 
 @Component({
   selector: 'app-workout-list',
@@ -11,12 +14,16 @@ import { slideDownAnimation } from '../../shared/animation';
 })
 export class WorkoutListComponent {
   dropdownOpen: boolean[] = [];
+  isModalOpen: boolean = false;
+  private expandCardClick$ = new Subject<MouseEvent>();
 
   @Input() workouts: WorkoutResponseDto[] = [];
   @Output() editWorkout = new EventEmitter<string>();
   @Output() deleteWorkout = new EventEmitter<string>();
+  @Output() viewWorkout = new EventEmitter<WorkoutResponseDto>();
+  @Output() viewWorkoutDetails = new EventEmitter<WorkoutResponseDto>();
 
-  constructor(private elRef: ElementRef) {}
+  constructor(private elRef: ElementRef, private modalService: NgbModal) {}
 
   ngOnChanges(): void {
     this.dropdownOpen = new Array(this.workouts.length).fill(false);
@@ -54,15 +61,8 @@ export class WorkoutListComponent {
     }
   }
 
-  @HostListener('click', ['$event'])
-  expandCard(event: MouseEvent) {
-    const clickedElement = event.currentTarget as HTMLElement;
-    if (this.elRef.nativeElement.contains(clickedElement)) {
-      if (clickedElement.classList.contains('expanded')) {
-        clickedElement.classList.remove('expanded');
-      } else {
-        clickedElement.classList.add('expanded');
-      }
-    }
+  onViewDetails(workout: WorkoutResponseDto): void {
+    console.log('Emitting viewWorkoutDetails event:', workout); // Add this line
+    this.viewWorkoutDetails.emit(workout);
   }
 }
