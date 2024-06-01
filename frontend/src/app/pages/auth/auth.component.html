@@ -1,5 +1,4 @@
-
-<div class="container" >
+<div class="container">
   <div class="content" @slideDown>
     <h2 class="logo"><i class="bx bxs-castle"></i> FitForge</h2>
     <div class="text-sci">
@@ -7,12 +6,12 @@
       <p>
         Join our community and start your personalized fitness journey today. Easy tracking, insightful progress reports, and real-time goal setting await you!
       </p>
-      <div class="social-icons">
+      <!-- <div class="social-icons">
         <a href="#"><i class="bx bxl-linkedin"></i></a>
         <a href="#"><i class="bx bxl-facebook"></i></a>
         <a href="#"><i class="bx bxl-instagram"></i></a>
         <a href="#"><i class="bx bxl-twitter"></i></a>
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -42,7 +41,6 @@
         <br />
         <div class="remember-forgot">
           <label><input type="checkbox" formControlName="rememberMe" />Remember me</label>
-          <!-- <a routerLink="/auth">Forgot Password?</a> -->
         </div>
         <button type="submit" class="btn">Sign in</button>
         <div class="login-register">
@@ -50,6 +48,8 @@
             Don't have an account?
             <a (click)="toggleForms()" class="register-link">Sign up</a>
           </p>
+          <div class="or-divider">or</div>
+          <button type="button" (click)="loginWithGoogle()" class="login-with-google-btn">Sign in with Google</button>
         </div>
       </form>
     </div>

@@ -14,6 +14,6 @@ export class NavbarComponent {
 
   logout(): void {
     this.authService.logout();
-    this.notificationService.showSuccess('You have been logged out successfully.');
+    this.notificationService.showSuccess('You have successfully logged out.');
   }
 }

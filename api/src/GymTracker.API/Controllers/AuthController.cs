@@ -1,5 +1,7 @@
 ﻿using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +11,35 @@ namespace GymTracker.API.Controllers;
 public class AuthController : BaseController
 {
     private readonly IAuthService _authService;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger) : base(logger)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger, IConfiguration configuration) : base(logger)
     {
         _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("google-login")]
+    public IActionResult GoogleLogin()
+    {
+        var redirectUrl = Url.Action(nameof(GoogleResponse));
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("google-response")]
+    public async Task<IActionResult> GoogleResponse()
+    {
+        var (user, token) = await _authService.HandleGoogleResponse(HttpContext);
+        if (user != null)
+        {
+            var frontendBaseUrl = _configuration["RedirectUrls:FrontendBaseUrl"];
+            var redirectUrl = $"{frontendBaseUrl}/home?token={System.Net.WebUtility.UrlEncode(token)}";
+            return Redirect(redirectUrl);
+        }
+        return BadRequest("Google authentication failed.");
     }
 
     [AllowAnonymous]

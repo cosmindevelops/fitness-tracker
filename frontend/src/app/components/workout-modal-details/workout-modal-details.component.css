@@ -22,7 +22,7 @@
 
 .modal-title{
   color: #ecf0f1;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: bold;
 }
 
@@ -71,7 +71,7 @@
 .exercise-name {
   font-size: 1.2rem;
   font-weight: bold;
-  margin-right: 10px;
+  margin-bottom: 4px;
   color: white;
 }
 
@@ -99,6 +99,8 @@
 .sets-title,
 .rpe-title {
   color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
 }
 
 .stats > div:not(:last-child) {

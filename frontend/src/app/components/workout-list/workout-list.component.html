@@ -1,6 +1,6 @@
 <div class="workout-list">
   <main class="workout-list-content">
-    <div *ngFor="let workout of workouts; let i = index" class="workout-card" @slideDown (click)="onViewDetails(workout)">
+    <div *ngFor="let workout of workouts; let i = index" class="workout-card" [@slideDown]="initialLoad" (click)="onViewDetails(workout)">
       <div class="header">
         <div class="title">{{ workout.notes }}</div>
         <div class="dropdown" (clickOutside)="closeDropdown(i)">

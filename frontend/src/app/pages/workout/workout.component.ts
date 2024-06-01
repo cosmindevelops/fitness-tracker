@@ -17,7 +17,9 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
   workouts: WorkoutResponseDto[] = [];
   showScrollIndicator: boolean = false;
   searchByDate: boolean = false;
-  scrollTimeout: any;
+  initialLoad: boolean = true;
+  scrollTimeout!: ReturnType<typeof setTimeout>;
+  noWorkoutsFound: boolean = false;
 
   @ViewChild('searchInput') searchInput!: ElementRef;
   @ViewChild('dateInput') dateInput!: ElementRef;
@@ -25,7 +27,11 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
 
   constructor(private workoutService: WorkoutService, private modalService: NgbModal, private notificationService: NotificationService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.workoutService.getWorkoutUpdateListener().subscribe(() => {
+      this.getWorkouts();
+    });
+  }
 
   ngAfterViewInit(): void {
     this.checkScrollIndicator();
@@ -38,16 +44,16 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
   }
 
   getWorkouts(): void {
-    const searchValue = this.searchInput.nativeElement.value;
-    const dateValue = this.searchByDate ? this.dateInput.nativeElement.value : '';
+    const searchValue = this.searchInput?.nativeElement?.value || '';
+    const dateValue = this.searchByDate ? this.dateInput?.nativeElement?.value : '';
 
     if (searchValue || dateValue) {
       this.workoutService.getWorkouts(searchValue, dateValue).subscribe(
         (data: WorkoutResponseDto[]) => {
           this.workouts = data;
+          this.noWorkoutsFound = data.length === 0; // Update property
         },
         (error) => {
-          console.error('Failed to fetch workouts', error);
           this.notificationService.showError('Failed to fetch workouts');
         }
       );
@@ -55,9 +61,9 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
       this.workoutService.getAllWorkouts().subscribe(
         (data: WorkoutResponseDto[]) => {
           this.workouts = data;
+          this.noWorkoutsFound = data.length === 0; // Update property
         },
         (error) => {
-          console.error('Failed to fetch workouts', error);
           this.notificationService.showError('Failed to fetch workouts');
         }
       );
@@ -67,49 +73,42 @@ export class WorkoutComponent implements OnInit, AfterViewInit {
   handleDeleteWorkout(workoutId: string): void {
     this.workoutService.deleteWorkout(workoutId).subscribe(
       () => {
-        this.getWorkouts();
         this.notificationService.showSuccess('Workout deleted successfully');
       },
       (error) => {
-        console.error('Failed to delete workout', error);
         this.notificationService.showError('Failed to delete workout');
       }
     );
   }
 
   handleCreateWorkout(): void {
-    console.log('Opening modal to create a new workout');
     const modalRef = this.modalService.open(WorkoutModalComponent);
 
     modalRef.result.then(
-      () => {
-        console.log('Modal closed, refreshing workouts');
-        this.getWorkouts();
+      (result) => {
+        if (result) {
+          this.getWorkouts();
+        }
       },
-      () => {
-        console.log('Modal dismissed');
-      }
+      () => {}
     );
   }
 
   handleEditWorkout(workoutId: string): void {
-    console.log(`Opening modal to edit workout with ID: ${workoutId}`);
     const modalRef = this.modalService.open(WorkoutModalComponent);
     modalRef.componentInstance.workoutId = workoutId;
 
     modalRef.result.then(
-      () => {
-        console.log('Modal closed, refreshing workouts');
-        this.getWorkouts();
+      (result) => {
+        if (result) {
+          this.getWorkouts();
+        }
       },
-      () => {
-        console.log('Modal dismissed');
-      }
+      () => {}
     );
   }
 
   showWorkoutDetails(workout: WorkoutResponseDto): void {
-    console.log('Workout details requested:', workout);
     const modalRef = this.modalService.open(WorkoutModalDetailsComponent, {
       backdrop: true,
       keyboard: true,

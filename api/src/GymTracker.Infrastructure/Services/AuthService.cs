@@ -3,8 +3,12 @@ using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Common.Exceptions;
 using GymTracker.Infrastructure.Repositories.Interfaces;
 using GymTracker.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace GymTracker.Infrastructure.Services;
 
@@ -21,6 +25,66 @@ public class AuthService : IAuthService
         _jwtTokenService = jwtTokenService ?? throw new ArgumentNullException(nameof(jwtTokenService));
         _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    public async Task<(User, string)> HandleGoogleResponse(HttpContext httpContext)
+    {
+        var result = await httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning("Google authentication failed.");
+            return (null, null);
+        }
+
+        var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claim => new
+        {
+            claim.Issuer,
+            claim.OriginalIssuer,
+            claim.Type,
+            claim.Value
+        });
+
+        var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+        if (email != null)
+        {
+            var user = await FindOrCreateGoogleUserAsync(email);
+            var roles = await GetUserRolesAsync(user);
+            var token = _jwtTokenService.GenerateToken(user, roles);
+            return (user, token);
+        }
+        _logger.LogWarning("Email claim not found.");
+        return (null, null);
+    }
+
+    public async Task<User> FindOrCreateGoogleUserAsync(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new ArgumentNullException(nameof(email));
+        }
+
+        var user = await _userRepository.FindByEmailAsync(email);
+        if (user == null)
+        {
+            var username = email.Split('@')[0];
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                Username = username,
+                PasswordHash = _passwordHasher.HashPassword(null, Guid.NewGuid().ToString()) // Dummy password
+            };
+            await _userRepository.RegisterUserAsync(user, "User");
+        }
+        return user;
+    }
+
+    public async Task<List<string>> GetUserRolesAsync(User user)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+
+        return await _userRepository.GetUserRolesAsync(user);
     }
 
     public async Task RegisterAsync(RegisterModelDto model)

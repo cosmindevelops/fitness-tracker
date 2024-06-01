@@ -1,7 +1,6 @@
 <main class="workout-content">
   <div class="workout-container" @slideDown>
     <h1 class="title">Recent Workouts</h1>
-
     <div class="input-group">
       <input type="text" #searchInput placeholder="Search" class="search-workout-input" />
       <button class="btn btn-primary workout-btn" (click)="getWorkouts()">Get workouts</button>
@@ -14,6 +13,7 @@
       <div *ngIf="searchByDate">
         <input type="date" #dateInput class="form-control" />
       </div>
+      <div *ngIf="noWorkoutsFound" class="no-workouts-message">No workouts found.</div>
       <div class="workout-list-container" #workoutListContainer>
         <app-workout-list
           [workouts]="workouts"

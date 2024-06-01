@@ -15,7 +15,7 @@ import { WorkoutModalDetailsComponent } from '../workout-modal-details/workout-m
 export class WorkoutListComponent {
   dropdownOpen: boolean[] = [];
   isModalOpen: boolean = false;
-  private expandCardClick$ = new Subject<MouseEvent>();
+  initialLoad: boolean = true;
 
   @Input() workouts: WorkoutResponseDto[] = [];
   @Output() editWorkout = new EventEmitter<string>();
@@ -27,6 +27,9 @@ export class WorkoutListComponent {
 
   ngOnChanges(): void {
     this.dropdownOpen = new Array(this.workouts.length).fill(false);
+    if (this.initialLoad) {
+      this.initialLoad = false;
+    }
   }
 
   toggleDropdown(index: number): void {
@@ -62,7 +65,13 @@ export class WorkoutListComponent {
   }
 
   onViewDetails(workout: WorkoutResponseDto): void {
-    console.log('Emitting viewWorkoutDetails event:', workout); // Add this line
-    this.viewWorkoutDetails.emit(workout);
+    const modalRef = this.modalService.open(WorkoutModalDetailsComponent, {
+      backdrop: true,
+      keyboard: true,
+    });
+
+    modalRef.componentInstance.workout = workout;
+
+    modalRef.result.catch(() => {});
   }
 }

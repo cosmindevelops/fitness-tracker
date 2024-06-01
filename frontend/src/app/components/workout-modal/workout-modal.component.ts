@@ -35,6 +35,7 @@ export class WorkoutModalComponent implements OnInit {
     this.workoutForm = this.fb.group({
       workoutName: ['', Validators.required],
       exercises: this.fb.array([]),
+      date: [new Date(), Validators.required],
     });
 
     if (this.workoutId) {
@@ -156,7 +157,7 @@ export class WorkoutModalComponent implements OnInit {
   createWorkoutDto(): WorkoutDto {
     const workoutDto: WorkoutDto = {
       notes: this.workoutForm.get('workoutName')?.value,
-      date: new Date(),
+      date: this.workoutId ? this.workoutForm.get('date')?.value : new Date(), // Set date conditionally
       exercises: this.exercises.controls.map((exerciseControl) => {
         const exercise = exerciseControl as FormGroup;
         const exerciseDto: ExerciseDto = {
@@ -183,6 +184,7 @@ export class WorkoutModalComponent implements OnInit {
         console.log('Workout data fetched successfully', workout);
         this.workoutForm.patchValue({
           workoutName: workout.notes,
+          date: workout.date, // Load the existing workout date
         });
         const exerciseArray = this.exercises;
         workout.exercises.forEach((exercise) => {
@@ -222,7 +224,6 @@ export class WorkoutModalComponent implements OnInit {
         }
       );
     } else {
-      // If it's a new workout, just reset the form
       this.workoutForm.reset();
       this.exercises.clear();
       this.notificationService.showInfo('Workout cleared.');

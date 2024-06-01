@@ -4,6 +4,7 @@ using GymTracker.Infrastructure.Common;
 using GymTracker.Infrastructure.Common.Utility.Interfaces;
 using GymTracker.Infrastructure.Repositories.Interfaces;
 using GymTracker.Infrastructure.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace GymTracker.Infrastructure.Services;
@@ -15,14 +16,17 @@ public class WorkoutService : IWorkoutService
     private readonly ILogger<WorkoutService> _logger;
     private readonly IGuidValidator _guidValidator;
     private readonly IEntityValidator _entityValidator;
+    private readonly IMemoryCache _cache;
+    private static readonly string CacheKey = "WorkoutsCache_";
 
-    public WorkoutService(IWorkoutRepository workoutRepository, IMapper mapper, ILogger<WorkoutService> logger, IGuidValidator guidValidator, IEntityValidator entityValidator)
+    public WorkoutService(IWorkoutRepository workoutRepository, IMapper mapper, ILogger<WorkoutService> logger, IGuidValidator guidValidator, IEntityValidator entityValidator, IMemoryCache cache)
     {
         _workoutRepository = workoutRepository ?? throw new ArgumentNullException(nameof(workoutRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _guidValidator = guidValidator ?? throw new ArgumentNullException(nameof(guidValidator));
         _entityValidator = entityValidator ?? throw new ArgumentNullException(nameof(entityValidator));
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     }
 
     public async Task<IEnumerable<WorkoutResponseDto>> GetAllWorkoutsForUserAsync(Guid userId)
@@ -31,8 +35,27 @@ public class WorkoutService : IWorkoutService
 
         _logger.LogInformation("Getting all workouts for user {UserId}", userId);
 
-        var workouts = await _workoutRepository.GetAllWorkoutsAsync(userId) ?? new List<Workout>();
-        return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
+        if (!_cache.TryGetValue($"{CacheKey}{userId}", out IEnumerable<WorkoutResponseDto> workouts))
+        {
+            _logger.LogInformation("Cache miss for user {UserId}", userId);
+
+            var workoutEntities = await _workoutRepository.GetAllWorkoutsAsync(userId) ?? new List<Workout>();
+            workouts = _mapper.Map<IEnumerable<WorkoutResponseDto>>(workoutEntities);
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+                SlidingExpiration = TimeSpan.FromMinutes(2)
+            };
+
+            _cache.Set($"{CacheKey}{userId}", workouts, cacheEntryOptions);
+        }
+        else
+        {
+            _logger.LogInformation("Cache hit for user {UserId}", userId);
+        }
+
+        return workouts;
     }
 
     public async Task<WorkoutResponseDto> GetWorkoutByIdForUserAsync(Guid userId, Guid workoutId)
@@ -76,6 +99,10 @@ public class WorkoutService : IWorkoutService
         var workout = _mapper.Map<Workout>(workoutDto);
         workout.UserId = userId;
         var createdWorkout = await _workoutRepository.CreateWorkoutAsync(workout);
+
+        // Invalidate the cache
+        _cache.Remove($"{CacheKey}{userId}");
+
         return _mapper.Map<WorkoutResponseDto>(createdWorkout);
     }
 
@@ -90,6 +117,10 @@ public class WorkoutService : IWorkoutService
 
         _mapper.Map(workoutDto, workout);
         await _workoutRepository.UpdateWorkoutAsync(workout);
+
+        // Invalidate the cache
+        _cache.Remove($"{CacheKey}{userId}");
+
         return _mapper.Map<WorkoutResponseDto>(workout);
     }
 
@@ -103,5 +134,8 @@ public class WorkoutService : IWorkoutService
         _entityValidator.EnsureWorkoutExists(workout, workoutId);
 
         await _workoutRepository.DeleteWorkoutAsync(workoutId);
+
+        // Invalidate the cache
+        _cache.Remove($"{CacheKey}{userId}");
     }
 }

@@ -1,34 +1,33 @@
-<div class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="workoutModalLabel" aria-hidden="true" style="display: block;">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
+<div class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="workoutModalLabel" aria-hidden="true" style="display: block">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 550px">
     <div class="modal-content">
       <div class="modal-header">
         <p class="modal-title" id="workoutModalLabel">{{ workout.notes || 'Workout' }}</p>
       </div>
       <div class="modal-body">
-        
-          <div class="header">
-            <div class="stats">
-              <div class="exercises-title">
-                <div class="title">Exercises</div>
-                <div class="value">
-                  <span class="exercises">{{ workout.exercises.length || 0 }}</span>
-                </div>
+        <div class="header">
+          <div class="stats">
+            <div class="exercises-title">
+              <div class="title">Exercises</div>
+              <div class="value">
+                <span class="exercises">{{ workout.exercises.length || 0 }}</span>
               </div>
-              <div class="sets-title">
-                <div class="title">Sets</div>
-                <div class="value">
-                  <span class="reps">{{ getTotalSets(workout.exercises) }}</span>
-                </div>
+            </div>
+            <div class="sets-title">
+              <div class="title">Sets</div>
+              <div class="value">
+                <span class="reps">{{ getTotalSets(workout.exercises) }}</span>
               </div>
-              <div class="rpe-title">
-                <div class="title">RPE</div>
-                <div class="value">
-                  <span class="rpe">{{ getRPERange(workout.exercises) }}</span>
-                </div>
+            </div>
+            <div class="rpe-title">
+              <div class="title">RPE</div>
+              <div class="value">
+                <span class="rpe">{{ getRPERange(workout.exercises) }}</span>
               </div>
             </div>
           </div>
-          <div class="scrollable-content">
+        </div>
+        <div class="scrollable-content">
           <div *ngFor="let exercise of workout.exercises" class="exercise">
             <div class="details">
               <p class="exercise-name">{{ exercise.name }}</p>

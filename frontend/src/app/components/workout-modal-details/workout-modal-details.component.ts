@@ -36,6 +36,10 @@ export class WorkoutModalDetailsComponent {
       return 'N/A';
     }
 
+    if (minRPE === maxRPE) {
+      return `${minRPE}`;
+    }
+
     return `${minRPE}-${maxRPE}`;
   }
 }

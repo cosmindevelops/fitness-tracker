@@ -82,7 +82,10 @@ export class AuthComponent implements OnInit {
       this.checkFormErrors(this.registerForm);
     }
   }
-  
+
+  loginWithGoogle(): void {
+    this.authService.loginWithGoogle();
+  }
 
   toggleForms(): void {
     this.isRegisterActive = !this.isRegisterActive;
@@ -92,22 +95,25 @@ export class AuthComponent implements OnInit {
   }
 
   private checkFormErrors(form: FormGroup): void {
-    for (const control in form.controls) {
-      if (form.controls[control].errors) {
-        for (const key in form.controls[control].errors) {
-          if (key === 'required') {
-            this.notificationService.showWarning(`${control.charAt(0).toUpperCase() + control.slice(1)} is required.`);
-            return;
-          } else if (key === 'email' && form.controls[control].hasError('email')) {
+    for (const controlName in form.controls) {
+      const control = form.controls[controlName];
+      if (control.errors) {
+        for (const errorKey in control.errors) {
+          if (errorKey === 'required') {
+            this.notificationService.showWarning(`${this.capitalize(controlName)} is required.`);
+          } else if (errorKey === 'email') {
             this.notificationService.showWarning('Please enter a valid email address.');
-            return;
-          } else if (key === 'minlength') {
-            const minLength = form.controls[control].errors?.['minlength'].requiredLength;
-            this.notificationService.showWarning(`${control.charAt(0).toUpperCase() + control.slice(1)} must be at least ${minLength} characters long.`);
-            return;
+          } else if (errorKey === 'minlength') {
+            const minLength = control.errors['minlength'].requiredLength;
+            this.notificationService.showWarning(`${this.capitalize(controlName)} must be at least ${minLength} characters long.`);
           }
+          return;
         }
       }
     }
+  }
+
+  private capitalize(word: string): string {
+    return word.charAt(0).toUpperCase() + word.slice(1);
   }
 }
