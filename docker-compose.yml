@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  sql_server:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "YourPassword123"
+      ACCEPT_EULA: "Y"
+      MSSQL_TCP_PORT: 1433
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./init-db:/init-db
+      - ./entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+    networks:
+      - fitness-tracker-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourPassword123 -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  gymtracker:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    depends_on:
+      sql_server:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sql_server;Database=GymTrackerDb;User Id=sa;Password=YourPassword123;Encrypt=False;TrustServerCertificate=True;
+    ports:
+      - "80:5000"
+    networks:
+      - fitness-tracker-network
+    entrypoint: /bin/bash -c "while ! /opt/mssql-tools/bin/sqlcmd -S sql_server -U sa -P YourPassword123 -Q 'SELECT 1' &> /dev/null; do echo waiting for sql_server; sleep 5; done; dotnet GymTracker.API.dll"
+
+  angular:
+    build:
+      context: frontend
+      dockerfile: Dockerfile  # Path to your Angular Dockerfile
+    ports:
+      - "8080:8080"  # Host port 8080 mapped to container port 8080
+    networks:
+      - fitness-tracker-network
+
+networks:
+  fitness-tracker-network:

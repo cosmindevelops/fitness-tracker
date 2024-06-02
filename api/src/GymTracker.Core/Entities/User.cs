@@ -7,5 +7,5 @@ public class User
     public string PasswordHash { get; set; }
     public string Email { get; set; }
     public List<Workout> Workouts { get; set; } = new List<Workout>();
-    public ICollection<UserRole> UserRoles { get; set; }
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

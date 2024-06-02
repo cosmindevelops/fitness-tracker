@@ -17,4 +17,4 @@ COPY --from=build /usr/src/app/dist/frontend/browser /usr/share/nginx/html
 # Copy custom NGINX configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+EXPOSE 8080

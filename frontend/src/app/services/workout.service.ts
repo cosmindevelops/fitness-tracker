@@ -7,7 +7,7 @@ import { WorkoutDto, WorkoutResponseDto } from '../models/workout.models';
   providedIn: 'root',
 })
 export class WorkoutService {
-  private apiUrl = 'https://localhost:7168/api/workout';
+  private apiUrl = 'http://localhost:80/api/workout';
   private workoutUpdated = new Subject<void>();
 
   constructor(private http: HttpClient) {}

@@ -12,6 +12,7 @@ using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -24,6 +25,12 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // Configure Kestrel to listen on port 5000
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(5000);
+        });
 
         // Configure Serilog
         Log.Logger = new LoggerConfiguration()
@@ -38,6 +45,9 @@ public class Program
 
         var app = builder.Build();
 
+        // Apply database migrations
+        ApplyMigrations(app);
+
         // Seed the database
         SeedDatabase(app);
 
@@ -51,8 +61,15 @@ public class Program
     {
         // Add DbContext
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-            b => b.MigrationsAssembly("GymTracker.Infrastructure")));
+        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5, // number of retry attempts
+                maxRetryDelay: TimeSpan.FromSeconds(10), // delay between retries
+                errorNumbersToAdd: null); // SQL error numbers to add to the list of transient errors
+            sqlOptions.MigrationsAssembly("GymTracker.Infrastructure");
+        }));
 
         // Configure JWT authentication
         var jwtSection = configuration.GetSection("Jwt");
@@ -109,6 +126,22 @@ public class Program
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IGuidValidator, GuidValidator>();
         services.AddScoped<IEntityValidator, EntityValidator>();
+    }
+
+    private static void ApplyMigrations(IHost app)
+    {
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            context.Database.Migrate(); // Apply migrations
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while applying migrations.");
+        }
     }
 
     private static void SeedDatabase(IHost app)
