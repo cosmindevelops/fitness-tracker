@@ -44,6 +44,9 @@ public class WorkoutController : BaseController
     public async Task<IActionResult> Create([FromBody] WorkoutCreateDto workoutDto)
     {
         Logger.LogInformation("Creating workout for user {UserId}", UserId);
+
+        workoutDto.Date = DateTime.SpecifyKind(workoutDto.Date, DateTimeKind.Utc);
+
         var result = await _workoutService.CreateWorkoutAsync(UserId, workoutDto);
         return CreatedAtAction(nameof(GetById), new { workoutId = result.Id }, result);
     }

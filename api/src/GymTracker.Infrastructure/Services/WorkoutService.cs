@@ -44,8 +44,8 @@ public class WorkoutService : IWorkoutService
 
             var cacheEntryOptions = new MemoryCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
-                SlidingExpiration = TimeSpan.FromMinutes(2)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                SlidingExpiration = TimeSpan.FromMinutes(10)
             };
 
             _cache.Set($"{CacheKey}{userId}", workouts, cacheEntryOptions);
@@ -64,10 +64,29 @@ public class WorkoutService : IWorkoutService
 
         _logger.LogInformation("Getting workout {WorkoutId} for user {UserId}", workoutId, userId);
 
-        var workout = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
-        _entityValidator.EnsureWorkoutExists(workout, workoutId);
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workouts))
+        {
+            var workout = workouts.FirstOrDefault(w => w.Id == workoutId);
+            if (workout != null)
+            {
+                _logger.LogInformation("Cache hit for workout {WorkoutId}", workoutId);
+                return workout;
+            }
+        }
 
-        return _mapper.Map<WorkoutResponseDto>(workout);
+        _logger.LogInformation("Cache miss for workout {WorkoutId}", workoutId);
+        var workoutEntity = await _workoutRepository.GetWorkoutByIdAsync(userId, workoutId);
+        _entityValidator.EnsureWorkoutExists(workoutEntity, workoutId);
+
+        var workoutResponse = _mapper.Map<WorkoutResponseDto>(workoutEntity);
+
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workoutList))
+        {
+            workoutList.Add(workoutResponse);
+            _cache.Set($"{CacheKey}{userId}", workoutList);
+        }
+
+        return workoutResponse;
     }
 
     public async Task<IEnumerable<WorkoutResponseDto>> GetWorkoutsByNameAsync(Guid userId, string name)
@@ -76,8 +95,27 @@ public class WorkoutService : IWorkoutService
 
         _logger.LogInformation("Getting workouts by name {Name} for user {UserId}", name, userId);
 
-        var workouts = await _workoutRepository.GetWorkoutsByNameAsync(userId, name) ?? new List<Workout>();
-        return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workouts))
+        {
+            var filteredWorkouts = workouts.Where(w => w.Notes.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (filteredWorkouts.Any())
+            {
+                _logger.LogInformation("Cache hit for workouts by name {Name}", name);
+                return filteredWorkouts;
+            }
+        }
+
+        _logger.LogInformation("Cache miss for workouts by name {Name}", name);
+        var workoutEntities = await _workoutRepository.GetWorkoutsByNameAsync(userId, name) ?? new List<Workout>();
+        var workoutResponseList = _mapper.Map<IEnumerable<WorkoutResponseDto>>(workoutEntities);
+
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> cachedWorkouts))
+        {
+            cachedWorkouts.AddRange(workoutResponseList);
+            _cache.Set($"{CacheKey}{userId}", cachedWorkouts);
+        }
+
+        return workoutResponseList;
     }
 
     public async Task<IEnumerable<WorkoutResponseDto>> SearchWorkoutsAsync(Guid userId, string name, DateTime? date)
@@ -86,8 +124,42 @@ public class WorkoutService : IWorkoutService
 
         _logger.LogInformation("Searching workouts by name {Name} and date {Date} for user {UserId}", name, date, userId);
 
-        var workouts = await _workoutRepository.SearchWorkoutsAsync(userId, name, date) ?? new List<Workout>();
-        return _mapper.Map<IEnumerable<WorkoutResponseDto>>(workouts);
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workouts))
+        {
+            var filteredWorkouts = workouts.Where(w =>
+                (string.IsNullOrEmpty(name) || w.Notes.Contains(name, StringComparison.OrdinalIgnoreCase)) &&
+                (!date.HasValue || w.Date.Date == date.Value.Date))
+                .ToList();
+
+            if (filteredWorkouts.Any())
+            {
+                _logger.LogInformation("Cache hit for workouts by name {Name} and date {Date}", name, date);
+                return filteredWorkouts;
+            }
+        }
+
+        _logger.LogInformation("Cache miss for workouts by name {Name} and date {Date}", name, date);
+        var workoutEntities = await _workoutRepository.SearchWorkoutsAsync(userId, name, date) ?? new List<Workout>();
+
+        // Log the dates being processed
+        foreach (var workout in workoutEntities)
+        {
+            _logger.LogInformation("Workout: {WorkoutId}, Date: {WorkoutDate}, User: {UserId}", workout.Id, workout.Date, userId);
+        }
+
+        var workoutResponseList = _mapper.Map<IEnumerable<WorkoutResponseDto>>(workoutEntities);
+
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> cachedWorkouts))
+        {
+            cachedWorkouts.AddRange(workoutResponseList);
+            _cache.Set($"{CacheKey}{userId}", cachedWorkouts);
+        }
+        else
+        {
+            _cache.Set($"{CacheKey}{userId}", workoutResponseList);
+        }
+
+        return workoutResponseList;
     }
 
     public async Task<WorkoutResponseDto> CreateWorkoutAsync(Guid userId, WorkoutCreateDto workoutDto)
@@ -96,12 +168,19 @@ public class WorkoutService : IWorkoutService
 
         _logger.LogInformation("Creating workout for user {UserId}", userId);
 
+        workoutDto.Date = DateTime.SpecifyKind(workoutDto.Date, DateTimeKind.Utc);
+
         var workout = _mapper.Map<Workout>(workoutDto);
         workout.UserId = userId;
+
         var createdWorkout = await _workoutRepository.CreateWorkoutAsync(workout);
 
-        // Invalidate the cache
-        _cache.Remove($"{CacheKey}{userId}");
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workouts))
+        {
+            var newWorkout = _mapper.Map<WorkoutResponseDto>(createdWorkout);
+            workouts.Add(newWorkout);
+            _cache.Set($"{CacheKey}{userId}", workouts);
+        }
 
         return _mapper.Map<WorkoutResponseDto>(createdWorkout);
     }
@@ -118,8 +197,16 @@ public class WorkoutService : IWorkoutService
         _mapper.Map(workoutDto, workout);
         await _workoutRepository.UpdateWorkoutAsync(workout);
 
-        // Invalidate the cache
-        _cache.Remove($"{CacheKey}{userId}");
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workouts))
+        {
+            var updatedWorkout = _mapper.Map<WorkoutResponseDto>(workout);
+            var index = workouts.FindIndex(w => w.Id == workoutId);
+            if (index != -1)
+            {
+                workouts[index] = updatedWorkout;
+                _cache.Set($"{CacheKey}{userId}", workouts);
+            }
+        }
 
         return _mapper.Map<WorkoutResponseDto>(workout);
     }
@@ -135,7 +222,10 @@ public class WorkoutService : IWorkoutService
 
         await _workoutRepository.DeleteWorkoutAsync(workoutId);
 
-        // Invalidate the cache
-        _cache.Remove($"{CacheKey}{userId}");
+        if (_cache.TryGetValue($"{CacheKey}{userId}", out List<WorkoutResponseDto> workouts))
+        {
+            workouts.RemoveAll(w => w.Id == workoutId);
+            _cache.Set($"{CacheKey}{userId}", workouts);
+        }
     }
 }

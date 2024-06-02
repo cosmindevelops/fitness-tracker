@@ -6,12 +6,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LoginRequest } from '../models/auth.models';
 import { AuthResponse } from '../models/auth.models';
 import { RegisterRequest } from '../models/auth.models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiURL = 'http://localhost:80/api/auth';
+  private apiURL = `${environment.apiUrl}/api/auth`;
 
   constructor(private http: HttpClient, private router: Router, private route: ActivatedRoute) {}
 
@@ -23,7 +24,8 @@ export class AuthService {
   }
 
   register(registerRequest: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiURL}/register`, registerRequest).pipe(catchError(this.handleError.bind(this)));
+    return this.http.post<AuthResponse>(`${this.apiURL}/register`, registerRequest).pipe(
+      catchError(this.handleError.bind(this)));
   }
 
   logout(): void {
@@ -47,14 +49,9 @@ export class AuthService {
   handleGoogleLoginCallback(): void {
     this.route.queryParams.subscribe((params) => {
       const token = params['token'];
-      console.log('Google login token:', token); // Debug log
-
       if (token) {
-        this.saveToken(token, true); // Saving the token
-        console.log('Token saved successfully'); // Debug log
+        this.saveToken(token, true);
         this.router.navigate(['/workout']);
-      } else {
-        console.error('No token found in URL'); // Debug log
       }
     });
   }

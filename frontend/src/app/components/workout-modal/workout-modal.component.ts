@@ -155,9 +155,11 @@ export class WorkoutModalComponent implements OnInit {
   }
 
   createWorkoutDto(): WorkoutDto {
+    const workoutDate = this.workoutId ? new Date(this.workoutForm.get('date')?.value) : new Date().toISOString();
+
     const workoutDto: WorkoutDto = {
       notes: this.workoutForm.get('workoutName')?.value,
-      date: this.workoutId ? this.workoutForm.get('date')?.value : new Date(), // Set date conditionally
+      date: new Date(workoutDate),
       exercises: this.exercises.controls.map((exerciseControl) => {
         const exercise = exerciseControl as FormGroup;
         const exerciseDto: ExerciseDto = {
@@ -212,7 +214,6 @@ export class WorkoutModalComponent implements OnInit {
 
   deleteWorkout(): void {
     if (this.workoutId) {
-      // If it's an edit operation, delete the workout from the database
       this.workoutService.deleteWorkout(this.workoutId).subscribe(
         () => {
           this.notificationService.showSuccess('Workout deleted successfully.');

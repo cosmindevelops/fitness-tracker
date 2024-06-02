@@ -16,7 +16,6 @@ export class JwtInterceptor implements HttpInterceptor {
         console.error('Error retrieving access token from localStorage', error);
       }
     }
-
     if (token) {
       request = request.clone({
         setHeaders: {

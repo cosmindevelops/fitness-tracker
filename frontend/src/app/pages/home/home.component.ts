@@ -32,12 +32,8 @@ export class HomeComponent implements OnInit{
   private handleGoogleLoginCallback(): void {
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
-      console.log('Google login token:', token); // Debug log
       if (token) {
-        this.saveToken(token, true); // Save the token
-        console.log('Token saved successfully'); // Debug log
-      } else {
-        console.error('No token found in URL'); // Debug log
+        this.saveToken(token, true);
       }
     });
   }

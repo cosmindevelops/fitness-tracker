@@ -2,12 +2,13 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable } from '@angular/core';
 import { Observable, Subject, catchError, tap, throwError } from 'rxjs';
 import { WorkoutDto, WorkoutResponseDto } from '../models/workout.models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkoutService {
-  private apiUrl = 'http://localhost:80/api/workout';
+  private apiUrl = `${environment.apiUrl}/api/workout`;
   private workoutUpdated = new Subject<void>();
 
   constructor(private http: HttpClient) {}
