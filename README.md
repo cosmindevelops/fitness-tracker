@@ -21,8 +21,22 @@ Gym Workout Logger is a web application that allows users to create an account a
 3. Navigate to the workout logging section.
 4. Enter the details of your workout session and save.
 
-## Project Status
+## Screenshots
 
-This project is currently in progress. The following features are planned for future releases:
-- Profile management
-- Advanced analytics and workout history
+![Screenshot1](./screenshots/screenshot1.jpg)
+<br>
+
+
+![Screenshot2](./screenshots/screenshot2.jpg)
+<br>
+
+
+![Screenshot3](./screenshots/screenshot3.jpg)
+<br>
+
+
+![Screenshot4](./screenshots/screenshot4.jpg)
+<br>
+
+
+![Screenshot5](./screenshots/screenshot5.jpg)
