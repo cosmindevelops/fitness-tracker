@@ -30,6 +30,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sql_server;Database=GymTrackerDb;User Id=sa;Password=YourPassword123;Encrypt=False;TrustServerCertificate=True;
+      - Authentication__Google__ClientId=${OAUTH_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${OAUTH_CLIENT_SECRET}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
     ports:
       - "80:5000"
     networks:

@@ -62,8 +62,6 @@ BenchmarkDotNet.Artifacts/
 # .NET
 project.lock.json
 project.fragment.lock.json
-appsettings.json
-appsettings.Development.json
 artifacts/
 
 # Tye
@@ -479,6 +477,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-API/appsettings.json
-frontend/Makefile
 Makefile
+.env

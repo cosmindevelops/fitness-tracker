@@ -12,7 +12,6 @@ using GymTracker.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -65,14 +64,19 @@ public class Program
         sqlServerOptionsAction: sqlOptions =>
         {
             sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5, // number of retry attempts
-                maxRetryDelay: TimeSpan.FromSeconds(10), // delay between retries
-                errorNumbersToAdd: null); // SQL error numbers to add to the list of transient errors
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
             sqlOptions.MigrationsAssembly("GymTracker.Infrastructure");
         }));
 
         // Configure JWT authentication
         var jwtSection = configuration.GetSection("Jwt");
+        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? jwtSection["Secret"];
+        var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? jwtSection["Issuer"];
+        var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? jwtSection["Audience"];
+
+        // Configure JWT authentication
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -94,8 +98,8 @@ public class Program
         .AddGoogle(options =>
         {
             var googleAuthNSection = configuration.GetSection("Authentication:Google");
-            options.ClientId = googleAuthNSection["ClientId"];
-            options.ClientSecret = googleAuthNSection["ClientSecret"];
+            options.ClientId = Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID") ?? googleAuthNSection["ClientId"];
+            options.ClientSecret = Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET") ?? googleAuthNSection["ClientSecret"];
             options.CallbackPath = new PathString("/signin-google");
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -135,7 +139,7 @@ public class Program
         try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            context.Database.Migrate(); // Apply migrations
+            context.Database.Migrate();
         }
         catch (Exception ex)
         {
