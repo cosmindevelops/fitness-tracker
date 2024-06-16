@@ -1,50 +1,20 @@
 services:
-  sql_server:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    environment:
-      SA_PASSWORD: "YourPassword123"
-      ACCEPT_EULA: "Y"
-      MSSQL_TCP_PORT: 1433
-      MSSQL_PID: "Developer"
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver-data:/var/opt/mssql
-      - ./init-db:/init-db
-      - ./entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
-    networks:
-      - fitness-tracker-network
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourPassword123 -Q 'SELECT 1'"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-
   backend:
     build:
       context: .
       dockerfile: api/Dockerfile
-    depends_on:
-      sql_server:
-        condition: service_healthy
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sql_server;Database=GymTrackerDb;User Id=sa;Password=YourPassword123;Encrypt=False;TrustServerCertificate=True;
-      - Authentication__Google__ClientId=${OAUTH_CLIENT_ID}
-      - Authentication__Google__ClientSecret=${OAUTH_CLIENT_SECRET}
-      - Jwt__Secret=${JWT_SECRET}
-      - Jwt__Issuer=${JWT_ISSUER}
-      - Jwt__Audience=${JWT_AUDIENCE}
+    image: andrew999/fitness-tracker-backend:latest
     ports:
       - "80:5000"
     networks:
       - fitness-tracker-network
-    entrypoint: /bin/bash -c "while ! /opt/mssql-tools/bin/sqlcmd -S sql_server -U sa -P YourPassword123 -Q 'SELECT 1' &> /dev/null; do echo waiting for sql_server; sleep 5; done; dotnet GymTracker.API.dll"
-
+    entrypoint: ["dotnet", "GymTracker.API.dll"]
+   
   frontend:
     build:
       context: frontend
       dockerfile: Dockerfile
+    image: andrew999/fitness-tracker-frontend:latest
     ports:
       - "8080:8080"
     networks:
@@ -52,6 +22,3 @@ services:
 
 networks:
   fitness-tracker-network:
-
-volumes:
-  sqlserver-data:

@@ -26,7 +26,7 @@ RUN dotnet publish GymTracker.API/GymTracker.API.csproj -c Release -o /app/publi
 # Stage 2: Create the runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 
-# Install curl, sqlcmd, and mssql-tools
+# Install curl, sqlcmd, and mssql-tools (optional)
 RUN apt-get update && \
     apt-get install -y curl apt-transport-https gnupg2 && \
     curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
@@ -43,17 +43,11 @@ WORKDIR /app
 # Copy the build output
 COPY --from=build /app/publish .
 
-# Copy entrypoint script from the root of the project
-COPY entrypoint.sh /app/entrypoint.sh
-
-# Ensure the entrypoint script is executable
-RUN chmod +x /app/entrypoint.sh
+# Copy the .env file from the src/GymTracker.API directory
+COPY api/src/GymTracker.API/.env .env
 
 # Expose the port the app runs on
 EXPOSE 5000
-
-# Set the entrypoint script
-ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Run the application
 CMD ["dotnet", "GymTracker.API.dll"]

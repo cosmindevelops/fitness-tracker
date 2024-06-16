@@ -479,3 +479,5 @@ $RECYCLE.BIN/
 *.lnk
 Makefile
 .env
+api/src/GymTracker.API/appsettings.json
+api/src/GymTracker.API/appsettings.Development.json
