@@ -60,23 +60,27 @@ public class Program
     {
         // Add DbContext
         services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-        sqlServerOptionsAction: sqlOptions =>
         {
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(10),
-                errorNumbersToAdd: null);
-            sqlOptions.MigrationsAssembly("GymTracker.Infrastructure");
-        }));
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null);
+                sqlOptions.MigrationsAssembly("GymTracker.Infrastructure");
+            });
+        });
 
-        // Configure JWT authentication
         var jwtSection = configuration.GetSection("Jwt");
-        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? jwtSection["Secret"];
-        var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? jwtSection["Issuer"];
-        var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? jwtSection["Audience"];
+        var jwtSecret = jwtSection["Secret"];
+        if (string.IsNullOrEmpty(jwtSecret) || jwtSecret.Length < 16)
+        {
+            throw new ArgumentOutOfRangeException(nameof(jwtSecret), "JWT_SECRET must be at least 16 characters long.");
+        }
 
-        // Configure JWT authentication
+        var key = Encoding.ASCII.GetBytes(jwtSecret);
+
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -88,18 +92,17 @@ public class Program
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSection["Secret"])),
+                IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidIssuer = jwtSection["Issuer"],
-                ValidAudience = jwtSection["Audience"]
+                ValidAudience = jwtSection["Audience"],
             };
         })
         .AddGoogle(options =>
         {
-            var googleAuthNSection = configuration.GetSection("Authentication:Google");
-            options.ClientId = Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID") ?? googleAuthNSection["ClientId"];
-            options.ClientSecret = Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET") ?? googleAuthNSection["ClientSecret"];
+            options.ClientId = configuration["Authentication:Google:ClientId"];
+            options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
             options.CallbackPath = new PathString("/signin-google");
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -185,6 +188,10 @@ public class Program
             .AllowAnyMethod()
             .AllowAnyHeader());
 
+        app.Use(async (context, next) =>
+        {
+            await next.Invoke();
+        });
         app.MapControllers();
     }
 }
