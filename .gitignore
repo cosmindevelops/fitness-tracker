@@ -62,6 +62,8 @@ BenchmarkDotNet.Artifacts/
 # .NET
 project.lock.json
 project.fragment.lock.json
+appsettings.json
+appsettings.Development.json
 artifacts/
 
 # Tye
@@ -480,4 +482,3 @@ $RECYCLE.BIN/
 Makefile
 .env
 api/src/GymTracker.API/appsettings.json
-api/src/GymTracker.API/appsettings.Development.json
