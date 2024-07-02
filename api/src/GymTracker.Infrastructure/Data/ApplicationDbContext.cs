@@ -19,6 +19,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<Workout> Workouts { get; set; }
     public DbSet<Exercise> Exercises { get; set; }
     public DbSet<Series> Series { get; set; }
+    public DbSet<WorkoutTemplate> WorkoutTemplates { get; set; }
+    public DbSet<TemplateExercise> TemplateExercises { get; set; }
+    public DbSet<TemplateWeek> TemplateWeeks { get; set; }
+    public DbSet<TemplateWorkout> TemplateWorkouts { get; set; }
+    public DbSet<UserWorkoutTemplate> UserWorkoutTemplates { get; set; }
+    public DbSet<UserExerciseProgress> UserExerciseProgresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

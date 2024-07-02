@@ -18,5 +18,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasMany(u => u.UserRoles)
                .WithOne(ur => ur.User)
                .HasForeignKey(ur => ur.UserId);
+
+        builder.HasMany(u => u.UserWorkoutTemplates)
+               .WithOne(uwt => uwt.User)
+               .HasForeignKey(uwt => uwt.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }
