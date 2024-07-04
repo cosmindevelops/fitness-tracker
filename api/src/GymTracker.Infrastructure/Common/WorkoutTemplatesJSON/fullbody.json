@@ -1,0 +1,70 @@
+{
+  "WorkoutTemplate": {
+    "Name": "Full Body Workout",
+    "Description": "A comprehensive full body workout plan.",
+    "DurationWeeks": 4,
+    "TemplateWeeks": [
+      {
+        "WeekNumber": 1,
+        "TemplateWorkouts": [
+          {
+            "Name": "Full Body #1",
+            "TemplateExercises": [
+              {
+                "ExerciseName": "Cross-Body Lat Pull-Around",
+                "LastSetIntensity": "Long-length Partials (on all reps of the last set)",
+                "WarmupSets": "1",
+                "WorkingSets": "3",
+                "Reps": "10-12",
+                "Rpe": "~7-8, ~8-9",
+                "Rest": "~2-3 min",
+                "Substitution1": "Half-Kneeling 1-Arm Lat Pulldown",
+                "Substitution2": "Neutral-Grip Pullup",
+                "Notes": "Try to keep the cable and your wrist aligned in a straight line throughout the pull. Feel a nice, deep lat stretch at the top."
+              }
+            ]
+          },
+          {
+            "Name": "Full Body #2",
+            "TemplateExercises": [
+              {
+                "ExerciseName": "Seated DB Shoulder Press",
+                "LastSetIntensity": "N/A",
+                "WarmupSets": "2",
+                "WorkingSets": "3",
+                "Reps": "10",
+                "Rpe": "~7-8, ~8-9",
+                "Rest": "~2-3 min",
+                "Substitution1": "Seated Barbell Shoulder Press",
+                "Substitution2": "Standing DB Arnold Press",
+                "Notes": "Slightly rotate the dumbbells in on the negative and flare your elbows out as you push."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "WeekNumber": 2,
+        "TemplateWorkouts": [
+          {
+            "Name": "Full Body #3",
+            "TemplateExercises": [
+              {
+                "ExerciseName": "Superset A1: Assisted Pull-Up",
+                "LastSetIntensity": "Long-length Partials (on all reps of the last set)",
+                "WarmupSets": "1-2",
+                "WorkingSets": "4",
+                "Reps": "8-10",
+                "Rpe": "~7-8, ~8-9",
+                "Rest": "~1 min",
+                "Substitution1": "Lat Pulldown",
+                "Substitution2": "Machine Pulldown",
+                "Notes": "Slow 2-3 second negative. Feel your lats pulling apart on the way down. Slight 0.5-1 second pause at the bottom, then lift your chest up and drive your elbows down as you lift yourself up. Don't be afraid to use assistance. Keep the form tight and controlled!"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -9,6 +9,7 @@ public class UserWorkoutTemplate
 
     // Navigation properties
     public User User { get; set; }
+
     public WorkoutTemplate WorkoutTemplate { get; set; }
     public List<UserExerciseProgress> UserExerciseProgress { get; set; } = new List<UserExerciseProgress>();
 }

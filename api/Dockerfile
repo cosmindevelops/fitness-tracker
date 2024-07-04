@@ -11,11 +11,13 @@ COPY api/src/GymTracker.Infrastructure/GymTracker.Infrastructure.csproj GymTrack
 
 # Restore dependencies
 RUN dotnet restore GymTracker.API/GymTracker.API.csproj
+RUN mkdir -p /app/logs
 
 # Copy the rest of the files
 COPY api/src/GymTracker.API/ GymTracker.API/
 COPY api/src/GymTracker.Core/ GymTracker.Core/
 COPY api/src/GymTracker.Infrastructure/ GymTracker.Infrastructure/
+COPY api/src/GymTracker.Infrastructure/Common/WorkoutTemplatesJSON /app/WorkoutTemplatesJSON
 
 # Build the application
 RUN dotnet build GymTracker.API/GymTracker.API.csproj -c Release -o /app/build

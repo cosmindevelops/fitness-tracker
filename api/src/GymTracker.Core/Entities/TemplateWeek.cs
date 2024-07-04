@@ -8,5 +8,6 @@ public class TemplateWeek
 
     // Navigation properties
     public WorkoutTemplate WorkoutTemplate { get; set; }
+
     public List<TemplateWorkout> TemplateWorkouts { get; set; } = new List<TemplateWorkout>();
 }

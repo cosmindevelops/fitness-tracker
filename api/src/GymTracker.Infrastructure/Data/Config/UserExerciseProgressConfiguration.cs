@@ -18,7 +18,7 @@ public class UserExerciseProgressConfiguration : IEntityTypeConfiguration<UserEx
         builder.Property(uep => uep.Set3Reps);
         builder.Property(uep => uep.Set4Reps);
         builder.Property(uep => uep.CompletionDate);
-        
+
         // Configure relation many-to-one with UserWorkoutTemplate
         builder.HasOne(uep => uep.UserWorkoutTemplate)
             .WithMany(uwt => uwt.UserExerciseProgress)

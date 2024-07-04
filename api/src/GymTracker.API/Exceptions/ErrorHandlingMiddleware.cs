@@ -40,6 +40,9 @@ public class ErrorHandlingMiddleware
             case UserNotFoundException _:
             case ExerciseNotFoundException _:
             case SeriesNotFoundException _:
+            case WorkoutTemplateNotFoundException _:
+            case UserWorkoutTemplateNotFoundException _:
+            case UserExerciseProgressNotFoundException _:
                 code = HttpStatusCode.NotFound; // 404
                 result = JsonSerializer.Serialize(new { error = exception.Message });
                 break;
@@ -49,6 +52,7 @@ public class ErrorHandlingMiddleware
                 result = JsonSerializer.Serialize(new { error = exception.Message });
                 break;
 
+            case TemplateAlreadySelectedException _:
             case UserAlreadyExistsException _:
                 code = HttpStatusCode.Conflict; // 409
                 result = JsonSerializer.Serialize(new { error = exception.Message });

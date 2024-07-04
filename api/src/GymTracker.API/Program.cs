@@ -21,7 +21,7 @@ namespace GymTracker.API;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +34,7 @@ public class Program
         // Configure Serilog
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .WriteTo.File("logs/myapp.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.File("/app/logs/myapp.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         // Add services to the DI container
@@ -48,12 +48,12 @@ public class Program
         ApplyMigrations(app);
 
         // Seed the database
-        SeedDatabase(app);
+        await SeedDatabase(app);
 
         // Configure the HTTP request pipeline
         ConfigureMiddleware(app);
 
-        app.Run();
+        await app.RunAsync();
     }
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
@@ -118,6 +118,12 @@ public class Program
         services.AddScoped<IWorkoutRepository, WorkoutRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();
+        services.AddScoped<IWorkoutTemplateRepository, WorkoutTemplateRepository>();
+        services.AddScoped<ITemplateWeekRepository, TemplateWeekRepository>();
+        services.AddScoped<ITemplateWorkoutRepository, TemplateWorkoutRepository>();
+        services.AddScoped<ITemplateExerciseRepository, TemplateExerciseRepository>();
+        services.AddScoped<IUserWorkoutTemplateRepository, UserWorkoutTemplateRepository>();
+        services.AddScoped<IUserExerciseProgressRepository, UserExerciseProgressRepository>();
 
         // Add AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));
@@ -128,6 +134,9 @@ public class Program
         services.AddScoped<IWorkoutService, WorkoutService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();
+        services.AddScoped<IUserWorkoutTemplateService, UserWorkoutTemplateService>();
+        services.AddScoped<IUserExerciseProgressService, UserExerciseProgressService>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -151,20 +160,65 @@ public class Program
         }
     }
 
-    private static void SeedDatabase(IHost app)
+    private static async Task SeedDatabase(IHost app)
     {
         using var scope = app.Services.CreateScope();
         var services = scope.ServiceProvider;
         try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var logger = services.GetRequiredService<ILogger<ApplicationDbContext>>();
-            ApplicationDbContext.SeedRoles(context, logger);
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            var workoutTemplateService = services.GetRequiredService<IWorkoutTemplateService>();
+            var dbContextLogger = services.GetRequiredService<ILogger<ApplicationDbContext>>();
+
+            ApplicationDbContext.SeedRoles(context, dbContextLogger);
+
+            // Verifică și creează șabloanele de antrenament
+            await SeedWorkoutTemplates(workoutTemplateService, logger);
         }
         catch (Exception ex)
         {
             var logger = services.GetRequiredService<ILogger<Program>>();
             logger.LogError(ex, "An error occurred while seeding the database.");
+        }
+    }
+
+    private static async Task SeedWorkoutTemplates(IWorkoutTemplateService workoutTemplateService, ILogger<Program> logger)
+    {
+        var templateFiles = new[]
+        {
+            "/app/WorkoutTemplatesJSON/fullbody.json",
+        };
+
+        logger.LogInformation($"Attempting to read template file from: {Path.GetFullPath(templateFiles[0])}");
+
+        foreach (var filePath in templateFiles)
+        {
+            if (!File.Exists(filePath))
+            {
+                logger.LogWarning("Template file not found: {FilePath}", filePath);
+                continue;
+            }
+
+            var existingTemplates = await workoutTemplateService.GetAllTemplatesAsync();
+            var templateName = Path.GetFileNameWithoutExtension(filePath);
+
+            if (!existingTemplates.Any(t => t.Name.Equals(templateName, StringComparison.OrdinalIgnoreCase)))
+            {
+                try
+                {
+                    await workoutTemplateService.CreateWorkoutTemplateFromJsonFileAsync(filePath);
+                    logger.LogInformation("Created workout template from file: {FilePath}", filePath);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error creating workout template from file: {FilePath}", filePath);
+                }
+            }
+            else
+            {
+                logger.LogInformation("Workout template already exists: {TemplateName}", templateName);
+            }
         }
     }
 

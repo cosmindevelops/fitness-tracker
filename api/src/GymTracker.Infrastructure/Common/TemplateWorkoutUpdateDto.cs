@@ -1,7 +1,6 @@
 ﻿namespace GymTracker.Infrastructure.Common;
 
-public class ExerciseCreateDto
+public class TemplateWorkoutUpdateDto
 {
     public string Name { get; set; }
-    public List<SeriesCreateDto> Series { get; set; }
 }

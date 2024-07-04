@@ -31,6 +31,9 @@ services:
       - "80:5000"
     networks:
       - fitness-tracker-network
+    volumes:
+      - ./api/src/GymTracker.Infrastructure/Common/WorkoutTemplatesJSON:/app/WorkoutTemplatesJSON
+      - logs:/app/logs
     entrypoint: /bin/bash -c "while ! /opt/mssql-tools/bin/sqlcmd -S sql_server -U sa -P YourPassword123 -Q 'SELECT 1' &> /dev/null; do echo waiting for sql_server; sleep 5; done; dotnet GymTracker.API.dll"
 
   frontend:
@@ -47,3 +50,4 @@ networks:
 
 volumes:
   sqlserver-data:
+  logs:

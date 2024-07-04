@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GymTracker.Infrastructure.Data.Config;
 
-public class TemplateWeekConfiguration :IEntityTypeConfiguration<TemplateWeek>
+public class TemplateWeekConfiguration : IEntityTypeConfiguration<TemplateWeek>
 {
     public void Configure(EntityTypeBuilder<TemplateWeek> builder)
     {
